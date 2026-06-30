@@ -10,7 +10,7 @@
 
     <div class="sandbox-container">
         
-        <<div class="input-panel">
+        <div class="input-panel">
             <h2>Content Builder</h2>
             <p>Draft your post privately and watch the preview update instantly.</p>
             
@@ -24,14 +24,21 @@
             </div>
             
             <div class="input-group">
-                <label>Upload Mock Media:</label>
-                <input type="file" id="media-uploader" accept="image/*">
+                <label>Upload Mock Media (Select up to 4):</label>
+                <input type="file" id="media-uploader" accept="image/*" multiple>
+                <div id="sort-container" class="sort-container"></div>
             </div>
             
             <div class="input-group">
                 <label for="post-text">Caption text:</label>
                 <textarea id="post-text" placeholder="Type your caption here... What's on your mind?"></textarea>
                 <div class="counter-badge">Characters: <span id="char-count">0</span> / <span id="char-limit">2200</span></div>
+                
+                <div id="guideline-audit" class="guideline-audit">
+                    <div class="audit-item" id="audit-length">✕ Within platform character limit</div>
+                    <div class="audit-item" id="audit-links">✓ Link format compliance</div>
+                    <div class="audit-item" id="audit-media">✕ Media attachment check</div>
+                </div>
             </div>
             
             <div class="privacy-toggles">
@@ -46,9 +53,9 @@
             
             <button class="btn-action">Send to Community Feed</button>
         </div>
-
+        
         <div class="preview-panel">
-            <div class="mock-phone">
+            <div class="mock-phone instagram-mode">
                 
                 <div class="post-header">
                     <div class="mock-avatar"></div>
@@ -58,16 +65,18 @@
                     </div>
                 </div>
 
-                <div class="mock-media-box">
-                    <div id="media-preview-wrapper" class="media-preview-wrapper">
-                        <img id="active-image-preview" src="" alt="" style="display: none;">
-                        <button id="remove-media-btn" class="remove-btn" style="display: none;" title="Remove Media">✕</button>
-                    </div>
-                    <span id="media-placeholder">[ Media Placeholder ]</span>
-                </div>
-
                 <div class="post-body">
                     <p id="preview-text">Your live caption preview will show up right here as you type...</p>
+                </div>
+
+                <<div class="mock-media-box">
+                    <div id="media-preview-wrapper" class="media-preview-wrapper">
+                        </div>
+                    
+                    <button id="prev-slide-btn" class="nav-arrow prev-arrow" style="display: none;">‹</button>
+                    <button id="next-slide-btn" class="nav-arrow next-arrow" style="display: none;">›</button>
+                    
+                    <span id="media-placeholder">[ Media Placeholder ]</span>
                 </div>
 
             </div>
@@ -75,6 +84,6 @@
 
     </div>
 
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
