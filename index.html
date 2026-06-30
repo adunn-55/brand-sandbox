@@ -8,80 +8,111 @@
 </head>
 <body>
 
-    <div class="sandbox-container">
-        
-        <div class="input-panel">
-            <h2>Content Builder</h2>
-            <p>Draft your post privately and watch the preview update instantly.</p>
+    <div id="sandbox-view" class="app-view">
+        <div class="sandbox-container">
             
-            <div class="input-group">
-                <label>Select Target Platform:</label>
-                <div class="platform-tabs">
-                    <button class="tab-btn active" data-platform="instagram">Instagram Feed</button>
-                    <button class="tab-btn" data-platform="twitter">X / Twitter</button>
-                    <button class="tab-btn" data-platform="tiktok">TikTok / Shorts</button>
-                </div>
-            </div>
-            
-            <div class="input-group">
-                <label>Upload Mock Media (Select up to 4):</label>
-                <input type="file" id="media-uploader" accept="image/*" multiple>
-                <div id="sort-container" class="sort-container"></div>
-            </div>
-            
-            <div class="input-group">
-                <label for="post-text">Caption text:</label>
-                <textarea id="post-text" placeholder="Type your caption here... What's on your mind?"></textarea>
-                <div class="counter-badge">Characters: <span id="char-count">0</span> / <span id="char-limit">2200</span></div>
+            <div class="input-panel">
+                <h2>Content Builder</h2>
+                <p>Draft your post privately and watch the preview update instantly.</p>
                 
-                <div id="guideline-audit" class="guideline-audit">
-                    <div class="audit-item" id="audit-length">✕ Within platform character limit</div>
-                    <div class="audit-item" id="audit-links">✓ Link format compliance</div>
-                    <div class="audit-item" id="audit-media">✕ Media attachment check</div>
-                </div>
-            </div>
-            
-            <div class="privacy-toggles">
-                <h3>Community Sharing Options</h3>
-                <label>
-                    <input type="checkbox" id="hide-identity"> Hide my face & identity
-                </label>
-                <label>
-                    <input type="checkbox" id="randomize-handle" checked> Use anonymous random handle
-                </label>
-            </div>
-            
-            <button class="btn-action">Send to Community Feed</button>
-        </div>
-        
-        <div class="preview-panel">
-            <div class="mock-phone instagram-mode">
-                
-                <div class="post-header">
-                    <div class="mock-avatar"></div>
-                    <div class="post-user-info">
-                        <strong id="preview-handle">@Anon_Creator</strong>
-                        <span>Sponsored / Draft</span>
+                <div class="input-group">
+                    <label>Select Target Platform:</label>
+                    <div class="platform-tabs">
+                        <button class="tab-btn active" data-platform="instagram">Instagram Feed</button>
+                        <button class="tab-btn" data-platform="twitter">X / Twitter</button>
+                        <button class="tab-btn" data-platform="tiktok">TikTok / Shorts</button>
                     </div>
                 </div>
-
-                <div class="post-body">
-                    <p id="preview-text">Your live caption preview will show up right here as you type...</p>
+                
+                <div class="input-group">
+                    <label>Upload Mock Media (Select up to 4):</label>
+                    <input type="file" id="media-uploader" accept="image/*" multiple>
+                    <div id="sort-container" class="sort-container"></div>
                 </div>
-
-                <<div class="mock-media-box">
-                    <div id="media-preview-wrapper" class="media-preview-wrapper">
+                
+                <div class="input-group">
+                    <label for="post-text">Caption text:</label>
+                    <textarea id="post-text" placeholder="Type your caption here... What's on your mind?"></textarea>
+                    <div class="counter-badge">Characters: <span id="char-count">0</span> / <span id="char-limit">2200</span></div>
+                    
+                    <div id="guideline-audit" class="guideline-audit">
+                        <div class="audit-item" id="audit-length">✕ Within platform character limit</div>
+                        <div class="audit-item" id="audit-links">✓ Link format compliance</div>
+                        <div class="audit-item" id="audit-media">✕ Media attachment check</div>
+                    </div>
+                </div>
+                
+                <div class="privacy-toggles">
+                    <h3>Community Sharing Options</h3>
+                    <label>
+                        <input type="checkbox" id="hide-identity"> Hide my face & identity
+                    </label>
+                    <label>
+                        <input type="checkbox" id="randomize-handle" checked> Use anonymous random handle
+                    </label>
+                </div>
+                
+                <div class="compact-nav">
+                    <button id="nav-community" class="nav-btn-link">Go to Community Focus Group →</button>
+                </div>
+            </div>
+            
+            <div class="preview-panel">
+                <div class="mock-phone instagram-mode">
+                    <div class="post-header">
+                        <div class="mock-avatar"></div>
+                        <div class="post-user-info">
+                            <strong id="preview-handle">@Anon_Creator</strong>
+                            <span>Sponsored / Draft</span>
                         </div>
-                    
-                    <button id="prev-slide-btn" class="nav-arrow prev-arrow" style="display: none;">‹</button>
-                    <button id="next-slide-btn" class="nav-arrow next-arrow" style="display: none;">›</button>
-                    
-                    <span id="media-placeholder">[ Media Placeholder ]</span>
+                    </div>
+
+                    <div class="post-body">
+                        <p id="preview-text">Your live caption preview will show up right here as you type...</p>
+                    </div>
+
+                    <div class="mock-media-box">
+                        <div id="media-preview-wrapper" class="media-preview-wrapper"></div>
+                        <button id="prev-slide-btn" class="nav-arrow prev-arrow" style="display: none;">‹</button>
+                        <button id="next-slide-btn" class="nav-arrow next-arrow" style="display: none;">›</button>
+                        <span id="media-placeholder">[ Media Placeholder ]</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="community-view" class="app-view hidden">
+        <div class="community-arena">
+            <div class="arena-header">
+                <h2>👥 Community Focus Group</h2>
+                <p>Here is how your post will display to peer reviewers for unbiased critiques.</p>
+                <button id="nav-sandbox" class="btn-action" style="margin-top: 15px; background-color: #334155;">← Back to Builder Workspace</button>
+            </div>
+
+            <div class="critique-card">
+                <div class="card-meta">
+                    <div class="anon-profile">
+                        <div class="anon-avatar">👤</div>
+                        <div>
+                            <strong id="anon-display-handle">@Anon_Creator_42</strong>
+                            <span class="target-badge" id="anon-platform-badge">Target: Instagram Feed</span>
+                        </div>
+                    </div>
+                    <div class="status-pill">🔒 Identity Masked</div>
                 </div>
 
+                <div class="card-display-content">
+                    <div id="arena-text-delivery" class="arena-text">
+                        Your caption text or thread content will sit here cleanly for reviewers to read...
+                    </div>
+                    <div id="arena-media-frame" class="arena-media-frame">
+                        <span class="frame-placeholder">[ Reviewer Media Preview Window ]</span>
+                    </div>
+                </div>
             </div>
         </div>
-
     </div>
 
     <script src="script.js"></script>
