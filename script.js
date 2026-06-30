@@ -223,29 +223,28 @@ function updateTextAndCounter() {
 postInput.addEventListener('input', updateTextAndCounter);
 handleCheckbox.addEventListener('change', updateTextAndCounter);
 
-// 5. App View Switcher Engine
-const navSandbox = document.getElementById('nav-sandbox');
-const navCommunity = document.getElementById('nav-community');
-const sandboxView = document.getElementById('sandbox-view');
-const communityView = document.getElementById('community-view');
+// 5. App View Switcher Engine - Safe Deployment Version
+window.addEventListener('DOMContentLoaded', () => {
+    const navSandbox = document.getElementById('nav-sandbox');
+    const navCommunity = document.getElementById('nav-community');
+    const sandboxView = document.getElementById('sandbox-view');
+    const communityView = document.getElementById('community-view');
 
-if (navSandbox && navCommunity && sandboxView && communityView) {
-    navSandbox.addEventListener('click', () => {
-        navSandbox.classList.add('active');
-        navCommunity.classList.remove('active');
-        sandboxView.classList.remove('hidden');
-        communityView.classList.add('hidden');
-    });
+    if (navSandbox && navCommunity && sandboxView && communityView) {
+        // Switch to Workspace View
+        navSandbox.addEventListener('click', () => {
+            sandboxView.classList.remove('hidden');
+            communityView.classList.add('hidden');
+        });
 
-    navCommunity.addEventListener('click', () => {
-        navCommunity.classList.add('active');
-        navSandbox.classList.remove('active');
-        communityView.classList.remove('hidden');
-        sandboxView.classList.add('hidden');
-        
-        syncToCommunityStage();
-    });
-}
+        // Switch to Community Focus Group View
+        navCommunity.addEventListener('click', () => {
+            communityView.classList.remove('hidden');
+            sandboxView.classList.add('hidden');
+            syncToCommunityStage(); // Fires data replication engine
+        });
+    }
+});
 
 // Helper function to push data across views dynamically
 function syncToCommunityStage() {
