@@ -15,11 +15,18 @@ body {
 .sandbox-container {
     display: flex;
     width: 100%;
-    max-width: 1100px;
     background-color: #1e293b;
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* NEW: Global view structure rules to keep the layout wide and centered */
+.app-view {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: block;
 }
 
 /* Left Column Workspace Styling */
@@ -247,18 +254,65 @@ body {
 .mock-phone.twitter-mode .media-preview-wrapper { aspect-ratio: 16 / 9; width: 92%; margin: 0 auto 12px auto; border-radius: 12px; overflow: hidden; }
 .mock-phone.twitter-mode #media-placeholder { display: none; }
 
-.mock-phone.tiktok-mode .post-header { order: 1; }
-.mock-phone.tiktok-mode .mock-media-box { order: 2; aspect-ratio: 9 / 16; }
-.mock-phone.tiktok-mode .post-body { order: 3; }
+/* TikTok Style Layout Modifiers - FIXED CONTAINER HEIGHT */
+.mock-phone.tiktok-mode { 
+    display: flex; 
+    flex-direction: column; 
+    max-width: 350px;  
+    width: 350px;      /* Explicitly locks the width */
+    height: 550px;     /* NEW: Explicitly forces the phone frame to stay wide open */
+    margin: 0 auto;    
+    position: relative; 
+    border-radius: 20px;
+    overflow: hidden;  /* Cleanly clips the edges of the absolute media track */
+}
 
-/* --- MULTI-IMAGE CAROUSEL SLIDER (For IG and TikTok) --- */
-.carousel-track {
-    display: flex; /* Lines up images horizontally side-by-side */
+.mock-phone.tiktok-mode .post-header { 
+    order: 1; 
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 20;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent); 
+    box-sizing: border-box;
+}
+
+.mock-phone.tiktok-mode .mock-media-box { 
+    order: 2; 
+    width: 100%;
+    height: 100%; /* NEW: Stretches to fill the exact 460px height of the phone frame */
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 5;
+    background-color: #000; /* Dark canvas backing like real TikTok */
+}
+
+.mock-phone.tiktok-mode .media-preview-wrapper {
     width: 100%;
     height: 100%;
-    overflow-x: auto; /* Enables native finger/mouse swiping */
-    scroll-snap-type: x mandatory; /* Forces the slider to cleanly snap to the next photo */
-    scroll-behavior: smooth;
+}
+
+/* FLOATING TEXT LAYER */
+.mock-phone.tiktok-mode .post-body { 
+    order: 3; 
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 20;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 50%, transparent); 
+    padding: 30px 12px 16px 12px;
+    box-sizing: border-box;
+    pointer-events: none; 
+}
+
+.mock-phone.tiktok-mode .post-body p {
+    color: #ffffff !important;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
+    font-size: 0.85rem;
+    margin: 0;
 }
 
 /* Hide native scrollbars so the carousel looks like a premium app layout */
@@ -338,4 +392,212 @@ body {
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid #334155;
+}
+
+/* --- THE COMMUNITY ARENA STYLING --- */
+.community-arena {
+    width: 100%;
+    max-width: 1100px;
+    margin: 40px auto; /* Generous top/bottom margin gap below sandbox */
+    background-color: #1e293b;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    box-sizing: border-box;
+}
+
+.arena-header {
+    margin-bottom: 25px;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 15px;
+}
+
+.arena-header h2 { margin: 0 0 5px 0; color: #3b82f6; }
+.arena-header p { margin: 0; color: #94a3b8; font-size: 0.95rem; }
+
+/* The Peer Review Card Frame */
+.critique-card {
+    background-color: #0f172a; /* Inner dark slate depth */
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 600px; /* Constrained width so text is highly readable */
+    margin: 0 auto;
+}
+
+.card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1e293b;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.anon-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.anon-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #334155;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+}
+
+.anon-profile strong { display: block; font-size: 0.95rem; color: #f8fafc; }
+
+.target-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: #3b82f6;
+    background-color: rgba(59, 130, 246, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 2px;
+    font-weight: 600;
+}
+
+.status-pill {
+    font-size: 0.75rem;
+    color: #10b981;
+    background-color: rgba(16, 185, 129, 0.1);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Reviewer Content Block layouts */
+.card-display-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.arena-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #cbd5e1;
+}
+
+.arena-media-frame {
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #1e293b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.frame-placeholder {
+    padding: 40px;
+    color: #475569;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* --- VIEW MANAGEMENT & COMPACT SWITCHES --- */
+.app-view {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Base style layout container validation */
+.sandbox-container {
+    display: flex;
+    width: 100%;
+    max-width: 1100px;
+    background-color: #1e293b;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.compact-nav {
+    margin-top: auto; /* Dynamically pushes the link button to the absolute bottom of the left panel */
+    padding-top: 20px;
+    border-top: 1px solid #334155;
+    text-align: center;
+}
+
+.nav-btn-link {
+    background: none;
+    border: none;
+    color: #3b82f6;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.nav-btn-link:hover {
+    color: #60a5fa;
+}
+
+/* Core hidden toggler layer rule */
+.app-view.hidden {
+    display: none !important;
+}
+
+/* --- REGULATE COMMUNITY VIEW MEDIA FORMATTING --- */
+
+/* If checking for Instagram, lock the peer preview window to a clean square layout */
+.mock-phone.instagram-mode ~ #community-view .arena-media-frame,
+.target-badge:contains("Instagram") ~ .card-display-content .arena-media-frame,
+#community-view .carousel-track {
+    width: 100%;
+}
+
+/* Force the cloned carousel items to stretch fully in the peer card too */
+#community-view .carousel-item {
+    flex: 0 0 100%;
+    width: 100%;
+}
+
+/* Force specific platform dimensions inside the community arena card frame */
+.mock-phone.instagram-mode + #community-view .arena-media-frame {
+    aspect-ratio: 1 / 1 !important;
+}
+
+/* If checking for TikTok, stretch the peer preview window vertically to match the 9:16 vibe */
+.mock-phone.tiktok-mode + #community-view .arena-media-frame {
+    aspect-ratio: 9 / 16 !important;
+    max-width: 320px; /* Constrains it slightly so it doesn't get aggressively tall on wide monitors */
+    margin: 0 auto;
+}
+
+/* Ensure the arena media frame cuts off any image bleeding */
+.arena-media-frame {
+    overflow: hidden !important;
+    border: 1px solid #334155;
+    border-radius: 8px;
+}
+
+/* Force the cloned carousel items inside the arena to match the dynamic height */
+.arena-media-frame .carousel-track {
+    height: 100% !important;
+    width: 100% !important;
+}
+
+.arena-media-frame .carousel-item {
+    height: 100% !important;
+    width: 100% !important;
+}
+
+.arena-media-frame .carousel-item img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
 }
