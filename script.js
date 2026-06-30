@@ -222,3 +222,87 @@ function updateTextAndCounter() {
 
 postInput.addEventListener('input', updateTextAndCounter);
 handleCheckbox.addEventListener('change', updateTextAndCounter);
+
+// 5. App View Switcher Engine
+const navSandbox = document.getElementById('nav-sandbox');
+const navCommunity = document.getElementById('nav-community');
+const sandboxView = document.getElementById('sandbox-view');
+const communityView = document.getElementById('community-view');
+
+if (navSandbox && navCommunity && sandboxView && communityView) {
+    navSandbox.addEventListener('click', () => {
+        navSandbox.classList.add('active');
+        navCommunity.classList.remove('active');
+        sandboxView.classList.remove('hidden');
+        communityView.classList.add('hidden');
+    });
+
+    navCommunity.addEventListener('click', () => {
+        navCommunity.classList.add('active');
+        navSandbox.classList.remove('active');
+        communityView.classList.remove('hidden');
+        sandboxView.classList.add('hidden');
+        
+        syncToCommunityStage();
+    });
+}
+
+// Helper function to push data across views dynamically
+function syncToCommunityStage() {
+    const anonTextDelivery = document.getElementById('arena-text-delivery');
+    const anonPlatformBadge = document.getElementById('anon-platform-badge');
+    const arenaMediaFrame = document.getElementById('arena-media-frame');
+    
+    // 1. Sync caption text
+    if (postInput && anonTextDelivery) {
+        if (postInput.value.trim() !== "") {
+            anonTextDelivery.innerText = postInput.value;
+        } else {
+            anonTextDelivery.innerText = "No caption text drafted for this submission.";
+        }
+    }
+    
+    // 2. Sync platform label badge
+    if (anonPlatformBadge) {
+        const currentPlatformName = currentPlatform === 'twitter' ? 'X / Twitter' : currentPlatform.charAt(0).toUpperCase() + currentPlatform.slice(1);
+        anonPlatformBadge.innerText = `Target: ${currentPlatformName} Feed`;
+    }
+
+    // 3. Sync media visual engine with strict inline aspect constraints
+    if (arenaMediaFrame && mediaPreviewWrapper) {
+        if (uploadedImages.length > 0) {
+            // Duplicate the structural timeline contents across
+            arenaMediaFrame.innerHTML = mediaPreviewWrapper.innerHTML;
+            
+            // Clean out the navigation arrow markup buttons safely
+            const fakeArrows = arenaMediaFrame.querySelectorAll('.nav-arrow');
+            fakeArrows.forEach(arrow => arrow.remove());
+
+            // FORCE FACTORY-DIRECT DIMENSIONS REGARDLESS OF TAB INHERITANCE
+            const trackElement = arenaMediaFrame.querySelector('.carousel-track');
+            const gridElement = arenaMediaFrame.querySelector('.image-grid');
+
+            if (currentPlatform === 'instagram') {
+                arenaMediaFrame.style.aspectRatio = "1 / 1";
+                arenaMediaFrame.style.maxWidth = "100%";
+                arenaMediaFrame.style.height = "auto";
+                if (trackElement) trackElement.style.aspectRatio = "1 / 1";
+            } else if (currentPlatform === 'tiktok') {
+                arenaMediaFrame.style.aspectRatio = "9 / 16";
+                arenaMediaFrame.style.maxWidth = "320px";
+                arenaMediaFrame.style.height = "568px"; // Standard pixel-mapped height constraint for 9:16 desktop renders
+                arenaMediaFrame.style.margin = "0 auto";
+                if (trackElement) trackElement.style.aspectRatio = "9 / 16";
+            } else if (currentPlatform === 'twitter') {
+                arenaMediaFrame.style.aspectRatio = "16 / 9";
+                arenaMediaFrame.style.maxWidth = "100%";
+                arenaMediaFrame.style.height = "auto";
+                if (gridElement) gridElement.style.aspectRatio = "16 / 9";
+            }
+
+        } else {
+            arenaMediaFrame.innerHTML = `<span class="frame-placeholder">[ Reviewer Media Preview Window ]</span>`;
+            arenaMediaFrame.style.aspectRatio = "auto";
+        }
+    }
+}
