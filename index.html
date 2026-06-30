@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Sandbox Emulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="sandbox-container">
+        
+        <<div class="input-panel">
+            <h2>Content Builder</h2>
+            <p>Draft your post privately and watch the preview update instantly.</p>
+            
+            <div class="input-group">
+                <label>Select Target Platform:</label>
+                <div class="platform-tabs">
+                    <button class="tab-btn active" data-platform="instagram">Instagram Feed</button>
+                    <button class="tab-btn" data-platform="twitter">X / Twitter</button>
+                    <button class="tab-btn" data-platform="tiktok">TikTok / Shorts</button>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Upload Mock Media:</label>
+                <input type="file" id="media-uploader" accept="image/*">
+            </div>
+            
+            <div class="input-group">
+                <label for="post-text">Caption text:</label>
+                <textarea id="post-text" placeholder="Type your caption here... What's on your mind?"></textarea>
+                <div class="counter-badge">Characters: <span id="char-count">0</span> / <span id="char-limit">2200</span></div>
+            </div>
+            
+            <div class="privacy-toggles">
+                <h3>Community Sharing Options</h3>
+                <label>
+                    <input type="checkbox" id="hide-identity"> Hide my face & identity
+                </label>
+                <label>
+                    <input type="checkbox" id="randomize-handle" checked> Use anonymous random handle
+                </label>
+            </div>
+            
+            <button class="btn-action">Send to Community Feed</button>
+        </div>
+
+        <div class="preview-panel">
+            <div class="mock-phone">
+                
+                <div class="post-header">
+                    <div class="mock-avatar"></div>
+                    <div class="post-user-info">
+                        <strong id="preview-handle">@Anon_Creator</strong>
+                        <span>Sponsored / Draft</span>
+                    </div>
+                </div>
+
+                <div class="mock-media-box">
+                    <div id="media-preview-wrapper" class="media-preview-wrapper">
+                        <img id="active-image-preview" src="" alt="" style="display: none;">
+                        <button id="remove-media-btn" class="remove-btn" style="display: none;" title="Remove Media">✕</button>
+                    </div>
+                    <span id="media-placeholder">[ Media Placeholder ]</span>
+                </div>
+
+                <div class="post-body">
+                    <p id="preview-text">Your live caption preview will show up right here as you type...</p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+<script src="script.js"></script>
+</body>
+</html>
