@@ -1,4 +1,3 @@
-// DOM Element Selectors
 const postInput = document.getElementById('post-text');
 const previewText = document.getElementById('preview-text');
 const handleCheckbox = document.getElementById('randomize-handle');
@@ -9,7 +8,15 @@ const charCountDisplay = document.getElementById('char-count');
 const charLimitDisplay = document.getElementById('char-limit');
 const counterBadge = document.querySelector('.counter-badge');
 
-// Platform Configuration Data (Limits and Handles)
+const auditLength = document.getElementById('audit-length');
+const auditLinks = document.getElementById('audit-links');
+const auditMedia = document.getElementById('audit-media');
+
+const mediaUploader = document.getElementById('media-uploader');
+const sortContainer = document.getElementById('sort-container');
+const mediaPreviewWrapper = document.getElementById('media-preview-wrapper');
+const mediaPlaceholder = document.getElementById('media-placeholder');
+
 const platformSettings = {
     instagram: { limit: 2200, styleClass: 'instagram-mode', placeholder: '@Anon_Creator' },
     twitter: { limit: 280, styleClass: 'twitter-mode', placeholder: '@Anon_X_User' },
@@ -17,51 +24,195 @@ const platformSettings = {
 };
 
 let currentPlatform = 'instagram';
+let uploadedImages = []; 
+let draggedIndex = null;  
 
-// 1. Logic for Switching Platforms
+// 1. Logic for Switching Platforms (UPDATED)
 tabButtons.forEach(button => {
     button.addEventListener('click', function() {
-        // Remove 'active' status from all buttons, apply to the clicked one
         tabButtons.forEach(btn => btn.classList.remove('active'));
         this.classList.add('active');
         
-        // Update current platform tracker
         currentPlatform = this.getAttribute('data-platform');
-        
-        // Update the phone's class styling rules
         mockPhone.className = 'mock-phone ' + platformSettings[currentPlatform].styleClass;
-        
-        // Update visual platform character limits
         charLimitDisplay.innerText = platformSettings[currentPlatform].limit;
         
-        // Refresh calculations and text rules
         updateTextAndCounter();
+        renderMediaEngine(); // ADD THIS LINE: Forces the phone layout to rebuild immediately on click
     });
 });
 
-// 2. Logic for tracking input text & processing character limits
+mediaUploader.addEventListener('change', function() {
+    const files = Array.from(this.files);
+    const availableSlots = 4 - uploadedImages.length;
+    const filesToProcess = files.slice(0, availableSlots);
+    let loadedCount = 0;
+
+    if(filesToProcess.length === 0) return;
+
+    filesToProcess.forEach(file => {
+        const reader = new FileReader();
+        reader.addEventListener('load', function() {
+            uploadedImages.push(this.result);
+            loadedCount++;
+            if (loadedCount === filesToProcess.length) {
+                renderMediaEngine();
+                updateTextAndCounter();
+            }
+        });
+        reader.readAsDataURL(file);
+    });
+    mediaUploader.value = ""; 
+});
+
+// Grab our newly added arrow controls
+const prevSlideBtn = document.getElementById('prev-slide-btn');
+const nextSlideBtn = document.getElementById('next-slide-btn');
+
+function renderMediaEngine() {
+    sortContainer.innerHTML = "";
+    mediaPreviewWrapper.innerHTML = "";
+    
+    // Hide arrows by default until verified
+    prevSlideBtn.style.display = 'none';
+    nextSlideBtn.style.display = 'none';
+
+    if (uploadedImages.length === 0) {
+        mediaPlaceholder.style.display = 'block';
+        return;
+    }
+    mediaPlaceholder.style.display = 'none';
+
+    if (currentPlatform === 'instagram' || currentPlatform === 'tiktok') {
+        
+        // BUILD CAROUSEL
+        const carouselTrack = document.createElement('div');
+        carouselTrack.className = 'carousel-track';
+        mediaPreviewWrapper.appendChild(carouselTrack);
+
+        uploadedImages.forEach((imgData, index) => {
+            const slide = document.createElement('div');
+            slide.className = 'carousel-item';
+            slide.innerHTML = `<img src="${imgData}" alt="Slide ${index}">`;
+            carouselTrack.appendChild(slide);
+            buildSortableThumbnail(imgData, index);
+        });
+
+        // Show arrows only if multi-image carousel has more than 1 image
+        if (uploadedImages.length > 1) {
+            prevSlideBtn.style.display = 'flex';
+            nextSlideBtn.style.display = 'flex';
+        }
+
+    } else {
+        // BUILD TWITTER GRID
+        const gridContainer = document.createElement('div');
+        gridContainer.className = `image-grid grid-${uploadedImages.length}`;
+        mediaPreviewWrapper.appendChild(gridContainer);
+
+        uploadedImages.forEach((imgData, index) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = imgData;
+            imgElement.className = 'grid-img';
+            gridContainer.appendChild(imgElement);
+            buildSortableThumbnail(imgData, imgData, index); 
+        });
+    }
+}
+
+// ARROW ENGINE: Listens for navigation inputs to slide the track widthwise
+nextSlideBtn.addEventListener('click', () => {
+    const track = document.querySelector('.carousel-track');
+    if (track) {
+        track.scrollBy({ left: track.offsetWidth, behavior: 'smooth' });
+    }
+});
+
+prevSlideBtn.addEventListener('click', () => {
+    const track = document.querySelector('.carousel-track');
+    if (track) {
+        track.scrollBy({ left: -track.offsetWidth, behavior: 'smooth' });
+    }
+});
+
+// Fixed thumbnail binder configuration helper
+function buildSortableThumbnail(imgData, index) {
+    const thumb = document.createElement('div');
+    thumb.className = 'sort-thumb';
+    thumb.style.backgroundImage = `url(${imgData})`;
+    thumb.setAttribute('draggable', 'true');
+    thumb.setAttribute('data-index', index);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'thumb-del';
+    delBtn.innerText = '✕';
+    delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        uploadedImages.splice(index, 1);
+        renderMediaEngine();
+        updateTextAndCounter();
+    });
+    thumb.appendChild(delBtn);
+
+    thumb.addEventListener('dragstart', function() { draggedIndex = index; this.style.opacity = '0.4'; });
+    thumb.addEventListener('dragend', function() { this.style.opacity = '1'; draggedIndex = null; });
+    thumb.addEventListener('dragover', function(e) { e.preventDefault(); });
+    thumb.addEventListener('drop', function() {
+        const targetIndex = parseInt(this.getAttribute('data-index'));
+        if (draggedIndex !== null && draggedIndex !== targetIndex) {
+            const movedItem = uploadedImages.splice(draggedIndex, 1)[0];
+            uploadedImages.splice(targetIndex, 0, movedItem);
+            renderMediaEngine();
+        }
+    });
+    sortContainer.appendChild(thumb);
+}
+
 function updateTextAndCounter() {
     const textLength = postInput.value.length;
     const currentLimit = platformSettings[currentPlatform].limit;
+    const textValue = postInput.value;
     
-    // Update live text preview
-    if (postInput.value === "") {
+    if (textValue === "") {
         previewText.innerText = "Your live caption preview will show up right here as you type...";
     } else {
-        previewText.innerText = postInput.value;
+        previewText.innerText = textValue;
     }
     
-    // Update character counter badge numbers
     charCountDisplay.innerText = textLength;
     
-    // Trigger red alert if user overtypes platform limit rules
-    if (textLength > currentLimit) {
+    if (textLength > currentLimit || textLength === 0) {
         counterBadge.classList.add('warning');
+        auditLength.innerText = `✕ Exceeds ${currentPlatform === 'twitter' ? 'X' : currentPlatform} limit (${textLength}/${currentLimit})`;
+        auditLength.className = "audit-item audit-fail";
     } else {
         counterBadge.classList.remove('warning');
+        auditLength.innerText = `✓ Length complies with ${currentPlatform === 'twitter' ? 'X' : currentPlatform} criteria`;
+        auditLength.className = "audit-item audit-pass";
     }
     
-    // Handle switching username titles depending on privacy checkbox status
+    const hashtagCount = (textValue.match(/#/g) || []).length;
+    if (hashtagCount > 3) {
+        auditLinks.innerText = `✕ Too many hashtags (${hashtagCount}/3). Looks spammy.`;
+        auditLinks.className = "audit-item audit-fail";
+    } else {
+        auditLinks.innerText = `✓ Hashtag optimization looks clean (${hashtagCount}/3)`;
+        auditLinks.className = "audit-item audit-pass";
+    }
+    
+    if (uploadedImages.length === 0) {
+        if (currentPlatform === 'tiktok') {
+            auditMedia.innerText = `✕ TikTok strictly requires a video attachment`;
+            auditMedia.className = "audit-item audit-fail";
+        } else {
+            auditMedia.innerText = `✓ Text-only post structure approved for ${currentPlatform === 'twitter' ? 'X' : 'Instagram'}`;
+            auditMedia.className = "audit-item audit-pass";
+        }
+    } else {
+        auditMedia.innerText = `✓ Media assets attached successfully (${uploadedImages.length}/4)`;
+        auditMedia.className = "audit-item audit-pass";
+    }
+    
     if (handleCheckbox.checked) {
         previewHandle.innerText = platformSettings[currentPlatform].placeholder;
     } else {
@@ -69,50 +220,5 @@ function updateTextAndCounter() {
     }
 }
 
-// 4. File Uploader Interface Engine (UPDATED for Remove Button)
-const mediaUploader = document.getElementById('media-uploader');
-const mediaPreviewWrapper = document.getElementById('media-preview-wrapper');
-const activeImagePreview = document.getElementById('active-image-preview');
-const mediaPlaceholder = document.getElementById('media-placeholder');
-const removeMediaBtn = document.getElementById('remove-media-btn');
-
-// Listening for file selection
-mediaUploader.addEventListener('change', function() {
-    const file = this.files[0];
-    
-    if (file) {
-        const reader = new FileReader(); 
-        
-        reader.addEventListener('load', function() {
-            // A. Set the image source
-            activeImagePreview.src = this.result;
-            activeImagePreview.alt = "User uploaded private preview";
-
-            // B. Transition: Hide placeholder text, Show image/button combo
-            mediaPlaceholder.style.display = 'none';
-            activeImagePreview.style.display = 'block';
-            removeMediaBtn.style.display = 'flex'; // Use flex to center the X
-        });
-        
-        reader.readAsDataURL(file); 
-    }
-});
-
-// NEW LISTENER: Listening for the "✕ Remove" button click
-removeMediaBtn.addEventListener('click', function(e) {
-    // A. Prevent the click from triggering parent element clicks
-    e.stopPropagation();
-
-    // B. Revert the DOM state: Show placeholder text, Hide image/button
-    activeImagePreview.src = '';
-    mediaPlaceholder.style.display = 'block';
-    activeImagePreview.style.display = 'none';
-    removeMediaBtn.style.display = 'none';
-
-    // C. Important: Clear the actual file uploader input so the same image can be re-selected
-    mediaUploader.value = ""; 
-});
-
-// Bind live listening functions
 postInput.addEventListener('input', updateTextAndCounter);
 handleCheckbox.addEventListener('change', updateTextAndCounter);
