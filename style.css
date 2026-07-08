@@ -505,11 +505,53 @@ body {
 }
 
 /* --- VIEW MANAGEMENT & COMPACT SWITCHES --- */
+/* FORCE VIEWS TO STACK VERTICALLY INSTEAD OF HORIZONTALLY */
 .app-view {
     width: 100%;
     display: flex;
+    flex-direction: column; /* Crucial: Keeps headers on top, workspaces on bottom */
     justify-content: center;
     align-items: center;
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+/* Ensure the full community arena wrapper takes up 100% width space */
+.community-arena {
+    width: 100%;
+    max-width: 1100px;
+    background-color: #1e293b;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    box-sizing: border-box;
+}
+
+/* THE TWO-COLUMN SIDE-BY-SIDE GRID WORKSPACE */
+.arena-workspace {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 20px;
+}
+
+/* Let both columns balance evenly at 50% width widthwise */
+.community-arena .critique-card {
+    flex: 1;
+    width: 100%;
+    margin: 0; 
+}
+
+.critique-scorecard {
+    flex: 1;
+    width: 100%;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 24px;
+    box-sizing: border-box;
 }
 
 /* Base style layout container validation */
@@ -600,4 +642,209 @@ body {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
+}
+
+/* --- CRITIQUE SCORECARD SUB-SYSTEM --- */
+.arena-workspace {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+/* Ensure the left card takes up equal balanced space */
+.community-arena .critique-card {
+    flex: 1;
+    margin: 0; /* Clear previous centered auto-margin margins */
+}
+
+/* Right Scorecard Column Wrapper Container */
+.critique-scorecard {
+    flex: 1;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.critique-scorecard h3 { margin: 0 0 4px 0; color: #f8fafc; font-size: 1.2rem; }
+.scorecard-sub { margin: 0 0 25px 0; color: #64748b; font-size: 0.85rem; }
+
+.slider-group {
+    margin-bottom: 22px;
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.metric-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.metric-val {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #3b82f6;
+    background-color: rgba(59, 130, 246, 0.1);
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+/* Premium Range Input Customization styling rules */
+.score-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #334155;
+    border-radius: 3px;
+    outline: none;
+    margin: 0;
+}
+
+.score-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.score-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.slider-hints {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #475569;
+    margin-top: 4px;
+}
+
+/* Critique text block styling */
+#reviewer-notes {
+    width: 100%;
+    min-height: 80px;
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #f8fafc;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+#reviewer-notes:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+/* Responsive collapse break logic rule for smaller screens */
+@media (max-width: 850px) {
+    .arena-workspace {
+        flex-direction: column;
+    }
+    .critique-scorecard {
+        width: 100%;
+    }
+}
+
+/* ==========================================
+   9. IDENTITY MASKING & PRIVACY SYSTEM
+   ========================================== */
+
+/* Censored Avatar Style for the Focus Group */
+.anon-avatar.is-censored {
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
+    animation: pulse-red 2s infinite;
+}
+
+/* The localized dragging censor box */
+.privacy-blur-box {
+    position: absolute;
+    top: 20%;      
+    left: 35%;
+    width: 90px;   
+    height: 90px;
+    border-radius: 50%; 
+    backdrop-filter: blur(20px) grayscale(60%); 
+    -webkit-backdrop-filter: blur(20px) grayscale(60%);
+    border: 2px dashed #ef4444;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4), inset 0 0 10px rgba(0,0,0,0.5);
+    z-index: 40;
+    pointer-events: auto;
+    cursor: move; 
+}
+
+/* Small identifier tag attached to the upper ring boundary */
+.privacy-blur-box::before {
+    content: "🔒 Mask Active";
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ef4444;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Real-world Interactive Privacy Overlay */
+.arena-media-frame {
+    position: relative; /* Anchor for our precise blur block */
+}
+
+/* The localized censor box */
+.privacy-blur-box {
+    position: absolute;
+    top: 15%;      /* Defaults near where a human head sits in portrait layouts */
+    left: 30%;
+    width: 90px;   /* Perfectly scaled face mask size */
+    height: 90px;
+    border-radius: 50%; /* Rounded face profile shape */
+    backdrop-filter: blur(20px) grayscale(50%); /* Blurs ONLY what sits directly beneath it */
+    -webkit-backdrop-filter: blur(20px) grayscale(50%);
+    border: 2px dashed #ef4444;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(0,0,0,0.5);
+    z-index: 40;
+    pointer-events: auto;
+    cursor: move; /* Indicates to reviewers/creators it represents an interactive block */
+}
+
+/* Small label identifier tag attached to the box */
+.privacy-blur-box::before {
+    content: "🔒 Mask Active";
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ef4444;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
 }
