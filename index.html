@@ -87,33 +87,88 @@
         <div class="community-arena">
             <div class="arena-header">
                 <h2>👥 Community Focus Group</h2>
-                <p>Here is how your post will display to peer reviewers for unbiased critiques.</p>
+                <p>Provide an objective, structured critique based on performance metrics.</p>
                 <button id="nav-sandbox" class="btn-action" style="margin-top: 15px; background-color: #334155;">← Back to Builder Workspace</button>
             </div>
 
-            <div class="critique-card">
-                <div class="card-meta">
-                    <div class="anon-profile">
-                        <div class="anon-avatar">👤</div>
-                        <div>
-                            <strong id="anon-display-handle">@Anon_Creator_42</strong>
-                            <span class="target-badge" id="anon-platform-badge">Target: Instagram Feed</span>
+           <!-- TWO-COLUMN CRITIQUE LAYOUT -->
+            <div class="arena-workspace">
+                
+                <!-- Column A: Dynamic Queue Post Display Card (Left Side) -->
+                <div class="critique-card">
+                    <div class="card-meta">
+                        <div class="anon-profile">
+                            <div class="anon-avatar">👤</div>
+                            <div>
+                                <strong id="anon-display-handle">Loading Queue...</strong>
+                                <span class="target-badge" id="anon-platform-badge">Target: Initializing</span>
+                            </div>
                         </div>
+                        <div class="status-pill">🔒 Identity Masked</div>
                     </div>
-                    <div class="status-pill">🔒 Identity Masked</div>
+
+                    <div class="card-display-content">
+                        <div class="arena-text-wrapper" style="padding: 16px; background-color: #0f172a; border-radius: 8px; margin-bottom: 12px;">
+                            <div id="arena-text-delivery" class="arena-text"></div>
+                        </div>
+                        <div id="arena-media-frame" class="arena-media-frame"></div>
+                    </div>
                 </div>
 
-                <div class="card-display-content">
-                    <div id="arena-text-delivery" class="arena-text">
-                        Your caption text or thread content will sit here cleanly for reviewers to read...
+                <!-- Column B: Interactive Peer Scorecard Widget (Right Side) -->
+                <div class="critique-scorecard">
+                    <h3>📊 Peer Scorecard</h3>
+                    <p class="scorecard-sub">Slide to rate each performance vector before submitting.</p>
+                    
+                    <!-- Metric 1: Hook Strength -->
+                    <div class="slider-group">
+                        <div class="slider-labels">
+                            <span class="metric-title">🪝 Hook Strength</span>
+                            <span class="metric-val" id="val-hook">50/100</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="50" class="score-slider" id="slider-hook">
+                        <div class="slider-hints">
+                            <span>Scroll-Past</span>
+                            <span>Scroll-Stopper</span>
+                        </div>
                     </div>
-                    <div id="arena-media-frame" class="arena-media-frame">
-                        <span class="frame-placeholder">[ Reviewer Media Preview Window ]</span>
+
+                    <!-- Metric 2: Visual Flow & Pacing -->
+                    <div class="slider-group">
+                        <div class="slider-labels">
+                            <span class="metric-title">👁️ Visual Pacing</span>
+                            <span class="metric-val" id="val-flow">50/100</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="50" class="score-slider" id="slider-flow">
+                        <div class="slider-hints">
+                            <span>Confusing/Cluttered</span>
+                            <span>Seamless Flow</span>
+                        </div>
                     </div>
+
+                    <!-- Metric 3: Value & Engagement Call -->
+                    <div class="slider-group">
+                        <div class="slider-labels">
+                            <span class="metric-title">🔥 Engagement/Value</span>
+                            <span class="metric-val" id="val-value">50/100</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="50" class="score-slider" id="slider-value">
+                        <div class="slider-hints">
+                            <span>Forgettable</span>
+                            <span>Saves & Shares</span>
+                        </div>
+                    </div>
+
+                    <!-- Reviewer Comments -->
+                    <div class="slider-group" style="margin-top: 20px;">
+                        <label class="metric-title" style="display:block; margin-bottom: 8px;">💬 Qualitative Notes</label>
+                        <textarea id="reviewer-notes" placeholder="What specific adjustment would make you stop and read this on your live timeline?"></textarea>
+                    </div>
+
+                    <button class="btn-action" id="submit-critique-btn" style="width: 100%; margin-top: 15px;">Submit Critique Draft</button>
                 </div>
-            </div>
-        </div>
-    </div>
+
+            </div> <!-- Closing arena-workspace -->
 
     <script src="script.js"></script>
 </body>
