@@ -3,173 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brand Sandbox Emulator</title>
+    <title>Creator Sandbox & Community Focus Group</title>
+    <!-- Link to your external stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="sandbox-view" class="app-view">
-        <div class="sandbox-container">
-            
-            <div class="input-panel">
-                <h2>Content Builder</h2>
-                <p>Draft your post privately and watch the preview update instantly.</p>
-                
-                <div class="input-group">
-                    <label>Select Target Platform:</label>
-                    <div class="platform-tabs">
-                        <button class="tab-btn active" data-platform="instagram">Instagram Feed</button>
-                        <button class="tab-btn" data-platform="twitter">X / Twitter</button>
-                        <button class="tab-btn" data-platform="tiktok">TikTok / Shorts</button>
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <label>Upload Mock Media (Select up to 4):</label>
-                    <input type="file" id="media-uploader" accept="image/*" multiple>
-                    <div id="sort-container" class="sort-container"></div>
-                </div>
-                
-                <div class="input-group">
-                    <label for="post-text">Caption text:</label>
-                    <textarea id="post-text" placeholder="Type your caption here... What's on your mind?"></textarea>
-                    <div class="counter-badge">Characters: <span id="char-count">0</span> / <span id="char-limit">2200</span></div>
-                    
-                    <div id="guideline-audit" class="guideline-audit">
-                        <div class="audit-item" id="audit-length">✕ Within platform character limit</div>
-                        <div class="audit-item" id="audit-links">✓ Link format compliance</div>
-                        <div class="audit-item" id="audit-media">✕ Media attachment check</div>
-                    </div>
-                </div>
-                
-                <div class="privacy-toggles">
-                    <h3>Community Sharing Options</h3>
-                    <label>
-                        <input type="checkbox" id="hide-identity"> Hide my face & identity
-                    </label>
-                    <label>
-                        <input type="checkbox" id="randomize-handle" checked> Use anonymous random handle
-                    </label>
-                </div>
-                
-                <div class="compact-nav">
-                    <button id="nav-community" class="nav-btn-link">Go to Community Focus Group →</button>
-                </div>
-            </div>
-            
-            <div class="preview-panel">
-                <div class="mock-phone instagram-mode">
-                    <div class="post-header">
-                        <div class="mock-avatar"></div>
-                        <div class="post-user-info">
-                            <strong id="preview-handle">@Anon_Creator</strong>
-                            <span>Sponsored / Draft</span>
-                        </div>
-                    </div>
+    <!-- Main Container Wrapper to anchor our viewport widths -->
+    <div class="app-container" style="width: 100%; min-height: 100vh; display: flex; flex-direction: column; align-items: center; box-sizing: border-box;">
 
-                    <div class="post-body">
-                        <p id="preview-text">Your live caption preview will show up right here as you type...</p>
-                    </div>
-
-                    <div class="mock-media-box">
-                        <div id="media-preview-wrapper" class="media-preview-wrapper"></div>
-                        <button id="prev-slide-btn" class="nav-arrow prev-arrow" style="display: none;">‹</button>
-                        <button id="next-slide-btn" class="nav-arrow next-arrow" style="display: none;">›</button>
-                        <span id="media-placeholder">[ Media Placeholder ]</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <div id="community-view" class="app-view hidden">
-        <div class="community-arena">
-            <div class="arena-header">
-                <h2>👥 Community Focus Group</h2>
-                <p>Provide an objective, structured critique based on performance metrics.</p>
-                <button id="nav-sandbox" class="btn-action" style="margin-top: 15px; background-color: #334155;">← Back to Builder Workspace</button>
-            </div>
-
-           <!-- TWO-COLUMN CRITIQUE LAYOUT -->
-            <div class="arena-workspace">
+        <!-- ==========================================
+             SANDBOX BUILDER VIEW
+             ========================================== -->
+        <div id="sandbox-view" class="app-view">
+            <div class="builder-container">
                 
-                <!-- Column A: Dynamic Queue Post Display Card (Left Side) -->
-                <div class="critique-card">
-                    <div class="card-meta">
-                        <div class="anon-profile">
-                            <div class="anon-avatar">👤</div>
-                            <div>
-                                <strong id="anon-display-handle">Loading Queue...</strong>
-                                <span class="target-badge" id="anon-platform-badge">Target: Initializing</span>
+                <!-- Left Panel: Content Controls -->
+                <div class="left-panel">
+                    <h2>📱 Creator Sandbox</h2>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Draft, format, and audit your social copy before pushing to live audiences.</p>
+
+                    <!-- A/B TESTING ENGINE CONTROLS -->
+                    <div class="draft-mode-container" style="margin-bottom: 25px; background-color: #0f172a; padding: 15px; border-radius: 10px; border: 1px solid #1e293b;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="color: #cbd5e1; font-weight: 600; font-size: 0.9rem;">🛠️ Builder Mode</label>
+                            <div class="mode-pills" id="mode-switcher" style="display: flex; gap: 5px; background-color: #1e293b; padding: 3px; border-radius: 20px;">
+                                <button class="mode-btn active" data-mode="single" style="border:none; padding: 5px 12px; border-radius: 17px; background: transparent; color: #64748b; font-size: 0.75rem; font-weight: 600; cursor:pointer;">Standard</button>
+                                <button class="mode-btn" data-mode="abtest" style="border:none; padding: 5px 12px; border-radius: 17px; background: transparent; color: #64748b; font-size: 0.75rem; font-weight: 600; cursor:pointer;">A/B Split-Test</button>
                             </div>
                         </div>
-                        <div class="status-pill">🔒 Identity Masked</div>
+
+                        <!-- Hidden variant sub-tabs -->
+                        <div id="ab-variant-tabs" class="hidden" style="margin-top: 10px; border-top: 1px solid #334155; padding-top: 10px;">
+                            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                                <button class="variant-tab active" data-variant="A" style="flex:1; border:none; padding: 10px; border-radius: 6px; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; font-weight: bold; cursor:pointer;">Editing Variant A</button>
+                                <button class="variant-tab" data-variant="B" style="flex:1; border:none; padding: 10px; border-radius: 6px; background-color: #1e293b; color: #94a3b8; font-weight: bold; cursor:pointer;">Editing Variant B</button>
+                            </div>
+                            <div style="text-align: center; color: #64748b; font-size: 0.8rem; font-style: italic;">Change any setting below (text, image, platform) for your chosen variant.</div>
+                        </div>
                     </div>
 
-                    <div class="card-display-content">
-                        <div class="arena-text-wrapper" style="padding: 16px; background-color: #0f172a; border-radius: 8px; margin-bottom: 12px;">
-                            <div id="arena-text-delivery" class="arena-text"></div>
+                    <!-- Platform Selector Tabs -->
+                    <div class="platform-selector" style="margin-bottom: 20px;">
+                        <label style="color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 8px; font-size: 0.9rem;">Target Feed</label>
+                        <div class="tab-btn-group" style="display: flex; gap: 8px;">
+                            <button class="tab-btn active" data-platform="instagram">Instagram</button>
+                            <button class="tab-btn" data-platform="twitter">X / Twitter</button>
+                            <button class="tab-btn" data-platform="tiktok">TikTok</button>
                         </div>
-                        <div id="arena-media-frame" class="arena-media-frame"></div>
+                    </div>
+
+                    <!-- Copy Inputs -->
+                    <div class="input-group" style="margin-bottom: 20px;">
+                        <label for="post-text" style="color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 8px; font-size: 0.9rem;">Caption Copy</label>
+                        <textarea id="post-text" placeholder="Draft your content copy here..." style="width:100%; height:120px; box-sizing:border-box;"></textarea>
+                        <div class="counter-badge" style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-top: 6px;">
+                            <span style="color: #64748b;">Characters: <span id="char-count">0</span> / <span id="char-limit">2200</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Media Loader -->
+                    <div class="input-group" style="margin-bottom: 20px;">
+                        <label style="color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 8px; font-size: 0.9rem;">Attachments (Max 4 Images)</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="file" id="media-uploader" accept="image/*" multiple style="display: none;">
+                            <label class="btn-action" for="media-uploader" style="cursor: pointer; padding: 10px 16px; border-radius: 8px; background-color: #3b82f6; font-size: 0.85rem; font-weight: bold; color: white;">📸 Upload Assets</label>
+                            <span style="font-size: 0.8rem; color: #64748b;">Drag thumbnails to sort sequence.</span>
+                        </div>
+                        <!-- Drag Sort Sandbox Thumbnail Dock -->
+                        <div id="sort-container" style="display: flex; gap: 10px; margin-top: 15px; min-height: 50px;"></div>
+                    </div>
+
+                    <!-- Privacy Configurations -->
+                    <div class="input-group" style="margin-bottom: 20px; background-color: #1e293b; padding: 12px; border-radius: 8px; border: 1px solid #334155;">
+                        <label style="display: flex; align-items: center; gap: 10px; color: #cbd5e1; font-size: 0.9rem; cursor: pointer;">
+                            <input type="checkbox" id="hide-identity">
+                            <span>🔒 Hide my face & identity (Censors profile metadata & activates localized blur mask)</span>
+                        </label>
+                    </div>
+
+                    <!-- Automated Quality Audits -->
+                    <div class="audit-board" style="background-color: #0f172a; padding: 15px; border-radius: 10px; border: 1px solid #1e293b; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: #f8fafc;">📋 Pre-Flight Copy Audit</h4>
+                        <div id="audit-length" class="audit-item audit-pass">✓ Length complies with Instagram criteria</div>
+                        <div id="audit-links" class="audit-item audit-pass">✓ Hashtag optimization looks clean (0/3)</div>
+                        <div id="audit-media" class="audit-item audit-pass">✓ Text-only post structure approved for Instagram</div>
+                    </div>
+
+                    <!-- Trigger Button to Switch to Community View -->
+                    <button id="nav-community" class="btn-action" style="width: 100%; padding: 14px; font-size: 1rem; background-color: #10b981;">Go to Community Focus Group →</button>
+                </div>
+
+                <!-- Right Panel: The Interactive Mock Phone Frame Preview -->
+                <div class="right-panel" style="display: flex; justify-content: center; align-items: center;">
+                    <div class="mock-phone instagram-mode">
+                        <div class="phone-header">
+                            <span class="phone-time">9:41</span>
+                            <div class="phone-notch"></div>
+                            <div class="phone-signals">📶 🔋</div>
+                        </div>
+                        
+                        <div class="phone-scroll-area">
+                            <div class="preview-card">
+                                <div class="preview-meta">
+                                    <div class="avatar-placeholder">👤</div>
+                                    <div class="meta-names">
+                                        <span class="profile-name" id="preview-handle">@YourRealBrand</span>
+                                        <span class="profile-sub">Sponsored</span>
+                                    </div>
+                                </div>
+
+                                <!-- Main Screen Media Frame -->
+                                <div class="media-preview-container" style="position: relative;">
+                                    <div id="media-preview-wrapper" class="media-preview-wrapper">
+                                        <div id="media-placeholder" class="frame-placeholder" style="padding: 60px 20px; text-align: center; color: #475569;">
+                                            [ Preview Media Attached Here ]
+                                        </div>
+                                    </div>
+                                    <!-- Static Carousel Slider Controls -->
+                                    <button id="prev-slide-btn" class="nav-arrow prev-arrow" style="display: none;">‹</button>
+                                    <button id="next-slide-btn" class="nav-arrow next-arrow" style="display: none;">›</button>
+                                </div>
+
+                                <div class="preview-caption">
+                                    <p id="preview-text">Your live caption preview will show up right here as you type...</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Column B: Interactive Peer Scorecard Widget (Right Side) -->
-                <div class="critique-scorecard">
-                    <h3>📊 Peer Scorecard</h3>
-                    <p class="scorecard-sub">Slide to rate each performance vector before submitting.</p>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             COMMUNITY FOCUS GROUP VIEW
+             ========================================== -->
+        <div id="community-view" class="app-view hidden">
+            <div class="community-arena">
+                
+                <!-- Arena Heading -->
+                <div class="arena-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 20px; margin-bottom: 20px;">
+                    <div>
+                        <h2 style="margin: 0; color: #f8fafc;">👥 Community Focus Group</h2>
+                        <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 0.9rem;">Provide an objective, structured critique based on performance metrics.</p>
+                    </div>
+                    <button id="nav-sandbox" class="btn-action" style="background-color: #475569;">← Back to Builder Workspace</button>
+                </div>
+
+                <!-- TWO-COLUMN CRITIQUE LAYOUT -->
+                <div class="arena-workspace">
                     
-                    <!-- Metric 1: Hook Strength -->
-                    <div class="slider-group">
-                        <div class="slider-labels">
-                            <span class="metric-title">🪝 Hook Strength</span>
-                            <span class="metric-val" id="val-hook">50/100</span>
+                    <!-- Column A: Dynamic Queue Post Display Card (Left Side) -->
+                    <div class="critique-card">
+                        <div class="card-meta">
+                            <div class="anon-profile">
+                                <div class="anon-avatar">👤</div>
+                                <div>
+                                    <strong id="anon-display-handle">Loading Queue...</strong>
+                                    <span class="target-badge" id="anon-platform-badge">Target: Initializing</span>
+                                </div>
+                            </div>
+                            <div class="status-pill">🔒 Identity Masked</div>
                         </div>
-                        <input type="range" min="0" max="100" value="50" class="score-slider" id="slider-hook">
-                        <div class="slider-hints">
-                            <span>Scroll-Past</span>
-                            <span>Scroll-Stopper</span>
+
+                        <div class="card-display-content">
+                            <div class="arena-text-wrapper" style="padding: 16px; background-color: #0f172a; border-radius: 8px; margin-bottom: 12px;">
+                                <div id="arena-text-delivery" class="arena-text"></div>
+                            </div>
+                            <div id="arena-media-frame" class="arena-media-frame"></div>
                         </div>
                     </div>
 
-                    <!-- Metric 2: Visual Flow & Pacing -->
-                    <div class="slider-group">
-                        <div class="slider-labels">
-                            <span class="metric-title">👁️ Visual Pacing</span>
-                            <span class="metric-val" id="val-flow">50/100</span>
+                    <!-- Column B: Interactive Peer Scorecard Widget (Right Side) -->
+                    <div class="critique-scorecard">
+                        <h3>📊 Peer Scorecard</h3>
+                        <p class="scorecard-sub">Slide to rate each performance vector before submitting.</p>
+                        
+                        <!-- Metric 1: Hook Strength -->
+                        <div class="slider-group">
+                            <div class="slider-labels">
+                                <span class="metric-title">🪝 Hook Strength</span>
+                                <span class="metric-val" id="val-hook">50/100</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="50" class="score-slider" id="slider-hook">
+                            <div class="slider-hints">
+                                <span>Scroll-Past</span>
+                                <span>Scroll-Stopper</span>
+                            </div>
                         </div>
-                        <input type="range" min="0" max="100" value="50" class="score-slider" id="slider-flow">
-                        <div class="slider-hints">
-                            <span>Confusing/Cluttered</span>
-                            <span>Seamless Flow</span>
+
+                        <!-- Metric 2: Visual Flow & Pacing -->
+                        <div class="slider-group">
+                            <div class="slider-labels">
+                                <span class="metric-title">👁️ Visual Pacing</span>
+                                <span class="metric-val" id="val-flow">50/100</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="50" class="score-slider" id="slider-flow">
+                            <div class="slider-hints">
+                                <span>Confusing/Cluttered</span>
+                                <span>Seamless Flow</span>
+                            </div>
+                        </div>
+
+                        <!-- Metric 3: Value & Engagement Call -->
+                        <div class="slider-group">
+                            <div class="slider-labels">
+                                <span class="metric-title">🔥 Engagement/Value</span>
+                                <span class="metric-val" id="val-value">50/100</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="50" class="score-slider" id="slider-value">
+                            <div class="slider-hints">
+                                <span>Forgettable</span>
+                                <span>Saves & Shares</span>
+                            </div>
+                        </div>
+
+                        <!-- Reviewer Comments -->
+                        <div class="slider-group" style="margin-top: 20px;">
+                            <label class="metric-title" style="display:block; margin-bottom: 8px;">💬 Qualitative Notes</label>
+                            <textarea id="reviewer-notes" placeholder="What specific adjustment would make you stop and read this on your live timeline?"></textarea>
+                        </div>
+
+                        <button class="btn-action" id="submit-critique-btn" style="width: 100%; margin-top: 15px;">Submit Critique Draft</button>
+                    </div>
+
+                </div> <!-- Closing arena-workspace -->
+
+                <!-- SECTION 3: ANALYTICS HISTORY FEED -->
+                <div class="analytics-history-section" style="margin-top: 40px; border-top: 1px dashed #334155; padding-top: 30px;">
+                    <div class="analytics-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; color: #f8fafc; font-size: 1.3rem;">📈 Community Critique History Logs</h3>
+                            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.85rem;">Review rolling submission metrics and compiled audit score balances.</p>
+                        </div>
+                        <!-- Dynamic Badge Counters -->
+                        <div class="history-badge-group" style="display: flex; gap: 15px;">
+                            <span style="background-color: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold;">
+                                Total Audited: <span id="log-counter-total" style="color: #3b82f6;">0</span>
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Metric 3: Value & Engagement Call -->
-                    <div class="slider-group">
-                        <div class="slider-labels">
-                            <span class="metric-title">🔥 Engagement/Value</span>
-                            <span class="metric-val" id="val-value">50/100</span>
-                        </div>
-                        <input type="range" min="0" max="100" value="50" class="score-slider" id="slider-value">
-                        <div class="slider-hints">
-                            <span>Forgettable</span>
-                            <span>Saves & Shares</span>
-                        </div>
+                    <!-- Empty state placeholder -->
+                    <div id="history-empty-state" style="text-align: center; padding: 40px; background-color: #0f172a; border: 1px dashed #334155; border-radius: 12px; color: #475569; font-size: 0.9rem;">
+                        📭 No critiques submitted during this live workspace session yet.
                     </div>
 
-                    <!-- Reviewer Comments -->
-                    <div class="slider-group" style="margin-top: 20px;">
-                        <label class="metric-title" style="display:block; margin-bottom: 8px;">💬 Qualitative Notes</label>
-                        <textarea id="reviewer-notes" placeholder="What specific adjustment would make you stop and read this on your live timeline?"></textarea>
-                    </div>
-
-                    <button class="btn-action" id="submit-critique-btn" style="width: 100%; margin-top: 15px;">Submit Critique Draft</button>
+                    <!-- Main dynamic log injection point grid container -->
+                    <div id="analytics-log-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; width: 100%;"></div>
                 </div>
 
-            </div> <!-- Closing arena-workspace -->
+            </div>
+        </div>
 
+    </div>
+
+    <!-- Link to your external script file -->
     <script src="script.js"></script>
 </body>
 </html>
