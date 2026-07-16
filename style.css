@@ -830,3 +830,91 @@ textarea#post-text:focus {
     border-color: #10b981 !important;
     box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
 }
+
+/* ==========================================
+   14. HOME LAUNCHPAD STYLING
+   ========================================== */
+
+/* Navbar links */
+.nav-link-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+.nav-link-btn:hover {
+    color: #cbd5e1;
+}
+
+.nav-link-btn.active {
+    color: #3b82f6;
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Home launchpad modules grid */
+.launch-card {
+    background-color: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 14px;
+    padding: 25px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.launch-card.interactive {
+    cursor: pointer;
+}
+
+.launch-card.interactive:hover {
+    transform: translateY(-4px);
+    border-color: #3b82f6;
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.1);
+}
+
+.launch-card.locked {
+    opacity: 0.6;
+    background-color: rgba(17, 24, 39, 0.5);
+    border-style: dashed;
+}
+
+.card-icon {
+    font-size: 2rem;
+}
+
+.launch-card h4 {
+    margin: 0;
+    font-size: 1.15rem;
+    color: #f8fafc;
+}
+
+.launch-card p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #64748b;
+}
+
+.launch-badge {
+    margin-top: auto;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #3b82f6;
+    padding-top: 10px;
+}
+
+.lock-badge {
+    margin-top: auto;
+    font-size: 0.8rem;
+    color: #475569;
+    font-weight: 600;
+}
