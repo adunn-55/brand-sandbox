@@ -7,6 +7,17 @@ const navCommunity = document.getElementById('nav-community');
 const sandboxView = document.getElementById('sandbox-view');
 const communityView = document.getElementById('community-view');
 
+// Home Navigation Selectors
+const homeView = document.getElementById('home-view');
+const btnNavHome = document.getElementById('nav-home');
+const btnNavSandboxHeader = document.getElementById('nav-sandbox-header');
+const btnNavCommunityHeader = document.getElementById('nav-community-header');
+const brandHomeLogo = document.getElementById('brand-home-logo');
+
+// Interactive Launch Cards on Homepage
+const launchSandboxBtn = document.getElementById('launch-sandbox-btn');
+const launchCommunityBtn = document.getElementById('launch-community-btn');
+
 // Builder UI inputs
 const postInput = document.getElementById('post-text');
 const previewText = document.getElementById('preview-text');
@@ -680,25 +691,68 @@ if (submitBtn) {
 }
 
 // ==========================================
-// 6. VIEW NAVIGATION PORT ROUTERS
+// 6. VIEW NAVIGATION PORT ROUTERS (THREE-WAY)
 // ==========================================
-if (navSandbox && navCommunity && sandboxView && communityView) {
-    navSandbox.addEventListener('click', () => {
-        sandboxView.classList.remove('hidden');
-        communityView.classList.add('hidden');
-    });
 
-    navCommunity.addEventListener('click', () => {
-        saveCurrentEditorToState(); // Commit current work before shifting tabs
+// Main routing helper function to swap screen views smoothly
+function navigateToScreen(screenId) {
+    // 1. Hide all main layouts
+    homeView.classList.add('hidden');
+    sandboxView.classList.add('hidden');
+    communityView.classList.add('hidden');
+
+    // 2. Remove active formatting from all top nav buttons
+    btnNavHome.classList.remove('active');
+    btnNavSandboxHeader.classList.remove('active');
+    btnNavCommunityHeader.classList.remove('active');
+
+    // 3. Turn on chosen screen and active links
+    if (screenId === 'home') {
+        homeView.classList.remove('hidden');
+        btnNavHome.classList.add('active');
         
+        // Update stats on the dashboard whenever we visit home
+        const totalAuditsNum = document.getElementById('home-stat-audits');
+        if (totalAuditsNum) totalAuditsNum.innerText = analyticsDatabase.length;
+        
+        const abStatBadge = document.getElementById('home-stat-ab');
+        if (abStatBadge) {
+            abStatBadge.innerText = builderMode === 'abtest' ? 'A/B Test Active' : 'Standard Mode';
+            abStatBadge.style.color = builderMode === 'abtest' ? '#8b5cf6' : '#3b82f6';
+        }
+
+    } else if (screenId === 'sandbox') {
+        sandboxView.classList.remove('hidden');
+        btnNavSandboxHeader.classList.add('active');
+
+    } else if (screenId === 'community') {
+        saveCurrentEditorToState(); // Save current work
         communityView.classList.remove('hidden');
-        sandboxView.classList.add('hidden');
+        btnNavCommunityHeader.classList.add('active');
         
+        // Load focus group sequence
         initializeCritiqueQueue();
         currentQueueIndex = 0;
         loadActiveQueuePost();
-    });
+    }
 }
+
+// Global Nav Header Click Listeners
+if (btnNavHome) btnNavHome.addEventListener('click', () => navigateToScreen('home'));
+if (btnNavSandboxHeader) btnNavSandboxHeader.addEventListener('click', () => navigateToScreen('sandbox'));
+if (btnNavCommunityHeader) btnNavCommunityHeader.addEventListener('click', () => navigateToScreen('community'));
+if (brandHomeLogo) brandHomeLogo.addEventListener('click', () => navigateToScreen('home'));
+
+// Bottom action/navigation buttons inside workspace sub-panels
+if (navSandbox) navSandbox.addEventListener('click', () => navigateToScreen('sandbox'));
+if (navCommunity) navCommunity.addEventListener('click', () => navigateToScreen('community'));
+
+// Homepage Clickable Launch Cards
+if (launchSandboxBtn) launchSandboxBtn.addEventListener('click', () => navigateToScreen('sandbox'));
+if (launchCommunityBtn) launchCommunityBtn.addEventListener('click', () => navigateToScreen('community'));
+
+// --- Set initial boot screen state ---
+navigateToScreen('home');
 
 // --- Initialize State on boot ---
 loadVariantToEditor('A');
