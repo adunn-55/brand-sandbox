@@ -1,431 +1,428 @@
-// --- 1. GLOBAL ELEMENT SELECTORS ---
-const postInput = document.getElementById('post-text');
-const previewText = document.getElementById('preview-text');
-const handleCheckbox = document.getElementById('randomize-handle');
-const previewHandle = document.getElementById('preview-handle');
-const tabButtons = document.querySelectorAll('.tab-btn');
-const mockPhone = document.querySelector('.mock-phone');
-const charCountDisplay = document.getElementById('char-count');
-const charLimitDisplay = document.getElementById('char-limit');
-const counterBadge = document.querySelector('.counter-badge');
-
-const auditLength = document.getElementById('audit-length');
-const auditLinks = document.getElementById('audit-links');
-const auditMedia = document.getElementById('audit-media');
-
-const mediaUploader = document.getElementById('media-uploader');
-const sortContainer = document.getElementById('sort-container');
-const mediaPreviewWrapper = document.getElementById('media-preview-wrapper');
-const mediaPlaceholder = document.getElementById('media-placeholder');
-
-// Grab navigation view controllers
+// ==========================================
+// 1. GLOBAL ELEMENT SELECTORS & A/B STATE
+// ==========================================
+// Main View Switchers
 const navSandbox = document.getElementById('nav-sandbox');
 const navCommunity = document.getElementById('nav-community');
 const sandboxView = document.getElementById('sandbox-view');
 const communityView = document.getElementById('community-view');
 
-// Grab slider scorecard elements
+// Builder UI inputs
+const postInput = document.getElementById('post-text');
+const previewText = document.getElementById('preview-text');
+const hideIdentityCheckbox = document.getElementById('hide-identity');
+const previewHandle = document.getElementById('preview-handle');
+const tabButtons = document.querySelectorAll('.tab-btn');
+const mockPhone = document.querySelector('.mock-phone');
+const charCountDisplay = document.getElementById('char-count');
+const charLimitDisplay = document.getElementById('char-limit');
+
+// A/B Mode UI elements
+const modeBtnContainer = document.getElementById('mode-switcher');
+const modeButtons = document.querySelectorAll('.mode-btn');
+const variantTabsContainer = document.getElementById('ab-variant-tabs');
+const variantTabs = document.querySelectorAll('.variant-tab');
+
+// Media upload elements
+const mediaUploader = document.getElementById('media-uploader');
+const sortContainer = document.getElementById('sort-container');
+const mediaPreviewWrapper = document.getElementById('media-preview-wrapper');
+const mediaPlaceholder = document.getElementById('media-placeholder');
+
+// Slide controls
+const prevSlideBtn = document.getElementById('prev-slide-btn');
+const nextSlideBtn = document.getElementById('next-slide-btn');
+
+// Critique Scorecard Elements
 const sliderHook = document.getElementById('slider-hook');
 const sliderFlow = document.getElementById('slider-flow');
 const sliderValue = document.getElementById('slider-value');
 const valHook = document.getElementById('val-hook');
 const valFlow = document.getElementById('val-flow');
 const valValue = document.getElementById('val-value');
-const submitBtn = document.getElementById('submit-critique-btn');
 const reviewerNotes = document.getElementById('reviewer-notes');
+const submitBtn = document.getElementById('submit-critique-btn');
 
-const hideIdentityCheckbox = document.getElementById('hide-identity');
-
-// Grab overlay slide navigation brackets
-const prevSlideBtn = document.getElementById('prev-slide-btn');
-const nextSlideBtn = document.getElementById('next-slide-btn');
-
-// --- 2. ARCHITECTURE CONFIGURATION SETTINGS ---
+// --- Platform Configuration ---
 const platformSettings = {
     instagram: { limit: 2200, styleClass: 'instagram-mode', placeholder: '@Anon_Creator' },
     twitter: { limit: 280, styleClass: 'twitter-mode', placeholder: '@Anon_X_User' },
     tiktok: { limit: 2200, styleClass: 'tiktok-mode', placeholder: '@Anon_TikToker' }
 };
 
+// ==========================================
+// 2. STATE TRACKING DATABASE
+// ==========================================
+let builderMode = 'single'; // 'single' or 'abtest'
+let activeEditingVariant = 'A'; // 'A' or 'B'
+
+let abPostState = {
+    A: { caption: "", platform: 'instagram', images: [], censored: false },
+    B: { caption: "", platform: 'instagram', images: [], censored: false }
+};
+
+// Active Working Variables (Mapped to the current editing variant)
 let currentPlatform = 'instagram';
-let uploadedImages = []; 
-let draggedIndex = null;  
+let uploadedImages = []; // Array of Base64 strings or URLs
 
-// --- 3. CORE WORKSPACE EVENT LISTENERS ---
+// ==========================================
+// 3. SYNCHRONIZATION & RENDERING ENGINES
+// ==========================================
 
-// Platform Tab Switcher
-tabButtons.forEach(button => {
-    button.addEventListener('click', function() {
-        tabButtons.forEach(btn => btn.classList.remove('active'));
+// Saves current workspace inputs into our state tracking database
+function saveCurrentEditorToState() {
+    abPostState[activeEditingVariant].caption = postInput.value;
+    abPostState[activeEditingVariant].platform = currentPlatform;
+    abPostState[activeEditingVariant].images = [...uploadedImages];
+    abPostState[activeEditingVariant].censored = hideIdentityCheckbox.checked;
+}
+
+// Pulls variant data back into active inputs and updates the UI
+function loadVariantToEditor(variant) {
+    activeEditingVariant = variant;
+    const data = abPostState[variant];
+
+    // Set working variables
+    currentPlatform = data.platform;
+    uploadedImages = [...data.images];
+    hideIdentityCheckbox.checked = data.censored;
+
+    // Update Platform Tabs
+    tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-platform') === currentPlatform) {
+            btn.classList.add('active');
+        }
+    });
+
+    // Update Text area and Counter limits
+    postInput.value = data.caption;
+    charLimitDisplay.innerText = platformSettings[currentPlatform].limit;
+
+    // Refresh Visuals
+    updateTextAndCounter();
+    renderMediaEngine();
+}
+
+// Handles Character Count and Live Caption syncing
+function updateTextAndCounter() {
+    const text = postInput.value;
+    charCountDisplay.innerText = text.length;
+
+    // Warning highlights if over platform limits
+    const limit = platformSettings[currentPlatform].limit;
+    if (text.length > limit) {
+        charCountDisplay.style.color = '#ef4444';
+    } else {
+        charCountDisplay.style.color = '#64748b';
+    }
+
+    // Live sync to mockup card
+    if (text.trim() !== "") {
+        previewText.innerText = text;
+    } else {
+        previewText.innerText = "Your live caption preview will show up right here as you type...";
+    }
+
+    // Sync handle and identity choices
+    if (hideIdentityCheckbox.checked) {
+        previewHandle.innerText = "@Anonymous_Reviewee";
+    } else {
+        previewHandle.innerText = platformSettings[currentPlatform].placeholder + "_42";
+    }
+
+    // Run a quick pre-flight verification audit
+    runPreFlightAudits();
+}
+
+// Manages image rendering, carousels, and grid arrays inside the phone mockup
+function renderMediaEngine() {
+    // Clear dynamic thumbnails docking bar
+    sortContainer.innerHTML = '';
+    
+    // Generate Draggable Thumbnails in Left Sidebar
+    uploadedImages.forEach((imgSrc, index) => {
+        const thumb = document.createElement('div');
+        thumb.style.cssText = `
+            width: 50px; height: 50px; border-radius: 6px; overflow: hidden; position: relative;
+            background: url(${imgSrc}) center/cover; border: 2px solid #334155; cursor: grab;
+        `;
+        thumb.setAttribute('draggable', 'true');
+        thumb.dataset.index = index;
+
+        // Trash indicator overlay
+        const deleteBadge = document.createElement('span');
+        deleteBadge.innerText = '×';
+        deleteBadge.style.cssText = `
+            position: absolute; top: 0; right: 0; background: rgba(239, 68, 68, 0.9);
+            color: white; width: 16px; height: 16px; font-size: 12px; line-height: 14px;
+            text-align: center; border-radius: 0 0 0 4px; cursor: pointer; font-weight: bold;
+        `;
+        deleteBadge.addEventListener('click', (e) => {
+            e.stopPropagation();
+            uploadedImages.splice(index, 1);
+            saveCurrentEditorToState();
+            renderMediaEngine();
+        });
+
+        thumb.appendChild(deleteBadge);
+        
+        // Drag events for reordering
+        thumb.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', index));
+        thumb.addEventListener('dragover', (e) => e.preventDefault());
+        thumb.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const fromIndex = e.dataTransfer.getData('text/plain');
+            const toIndex = index;
+            const movedItem = uploadedImages.splice(fromIndex, 1)[0];
+            uploadedImages.splice(toIndex, 0, movedItem);
+            saveCurrentEditorToState();
+            renderMediaEngine();
+        });
+
+        sortContainer.appendChild(thumb);
+    });
+
+    // Update Central Mock Phone Frame
+    if (uploadedImages.length > 0) {
+        mediaPlaceholder.style.display = 'none';
+        
+        // Adapt display structure based on active platform rules
+        if (currentPlatform === 'instagram') {
+            // Instagram: Smooth Swipeable Horizontal Carousel Track
+            mediaPreviewWrapper.innerHTML = `
+                <div class="carousel-track" style="display: flex; transition: transform 0.3s ease; width: 100%; height: 100%;">
+                    ${uploadedImages.map(img => `<div class="carousel-item" style="min-width: 100%; height: 100%; background: url(${img}) center/cover no-repeat;"></div>`).join('')}
+                </div>
+            `;
+            // Toggle arrows
+            if (uploadedImages.length > 1) {
+                prevSlideBtn.style.display = 'flex';
+                nextSlideBtn.style.display = 'flex';
+            } else {
+                prevSlideBtn.style.display = 'none';
+                nextSlideBtn.style.display = 'none';
+            }
+        } else if (currentPlatform === 'twitter') {
+            // Twitter: Responsive CSS Multi-Grid
+            prevSlideBtn.style.display = 'none';
+            nextSlideBtn.style.display = 'none';
+            
+            let gridClass = 'grid-single';
+            if (uploadedImages.length === 2) gridClass = 'grid-double';
+            if (uploadedImages.length === 3) gridClass = 'grid-triple';
+            if (uploadedImages.length >= 4) gridClass = 'grid-quad';
+
+            mediaPreviewWrapper.innerHTML = `
+                <div class="image-grid ${gridClass}" style="display: grid; gap: 4px; width: 100%; height: 100%;">
+                    ${uploadedImages.slice(0, 4).map(img => `<div class="grid-item" style="background: url(${img}) center/cover no-repeat; width: 100%; height: 100%;"></div>`).join('')}
+                </div>
+            `;
+        } else if (currentPlatform === 'tiktok') {
+            // TikTok: Portrait Stack (First Image Only)
+            prevSlideBtn.style.display = 'none';
+            nextSlideBtn.style.display = 'none';
+            mediaPreviewWrapper.innerHTML = `
+                <div class="carousel-track" style="width: 100%; height: 100%;">
+                    <div class="carousel-item" style="width: 100%; height: 100%; background: url(${uploadedImages[0]}) center/cover no-repeat;"></div>
+                </div>
+            `;
+        }
+    } else {
+        // Safe fallback state
+        mediaPreviewWrapper.innerHTML = '';
+        mediaPreviewWrapper.appendChild(mediaPlaceholder);
+        mediaPlaceholder.style.display = 'block';
+        prevSlideBtn.style.display = 'none';
+        nextSlideBtn.style.display = 'none';
+    }
+}
+
+// Real-time quality verification checklist
+function runPreFlightAudits() {
+    const lengthAudit = document.getElementById('audit-length');
+    const linkAudit = document.getElementById('audit-links');
+    const mediaAudit = document.getElementById('audit-media');
+    const text = postInput.value;
+
+    // 1. Length audit
+    const limit = platformSettings[currentPlatform].limit;
+    if (text.length <= limit) {
+        lengthAudit.innerText = `✓ Length complies with ${currentPlatform.charAt(0).toUpperCase() + currentPlatform.slice(1)} criteria`;
+        lengthAudit.className = 'audit-item audit-pass';
+    } else {
+        lengthAudit.innerText = `✗ Out of limits! Drop ${text.length - limit} characters`;
+        lengthAudit.className = 'audit-item audit-fail';
+    }
+
+    // 2. Hashtag limits
+    const hashtags = (text.match(/#/g) || []).length;
+    if (hashtags <= 3) {
+        linkAudit.innerText = `✓ Hashtags are optimized (${hashtags}/3)`;
+        linkAudit.className = 'audit-item audit-pass';
+    } else {
+        linkAudit.innerText = `⚠ Hashtag stuffing alert! Keep under 3 (${hashtags} found)`;
+        linkAudit.className = 'audit-item audit-fail';
+    }
+
+    // 3. Media verification
+    if (uploadedImages.length > 0) {
+        mediaAudit.innerText = `✓ Rich media formatting validated (${uploadedImages.length}/4 items)`;
+        mediaAudit.className = 'audit-item audit-pass';
+    } else {
+        mediaAudit.innerText = `⚠ Text-only draft structure active`;
+        mediaAudit.className = 'audit-item audit-warn';
+    }
+}
+
+// ==========================================
+// 4. CORE BUILDER EVENTS & BINDINGS
+// ==========================================
+
+// Input capture and live sync
+postInput.addEventListener('input', () => {
+    updateTextAndCounter();
+    saveCurrentEditorToState();
+});
+
+hideIdentityCheckbox.addEventListener('change', () => {
+    updateTextAndCounter();
+    saveCurrentEditorToState();
+});
+
+// Platform switching tabs
+tabButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+        tabButtons.forEach(b => b.classList.remove('active'));
         this.classList.add('active');
         
         currentPlatform = this.getAttribute('data-platform');
+        
+        // Swap visual classes on phone framework
         mockPhone.className = 'mock-phone ' + platformSettings[currentPlatform].styleClass;
         charLimitDisplay.innerText = platformSettings[currentPlatform].limit;
         
         updateTextAndCounter();
-        renderMediaEngine(); 
+        renderMediaEngine();
+        saveCurrentEditorToState();
     });
 });
 
-// File Image Ingestion Processor
-mediaUploader.addEventListener('change', function() {
-    const files = Array.from(this.files);
+// Media files capture
+mediaUploader.addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
     const availableSlots = 4 - uploadedImages.length;
-    const filesToProcess = files.slice(0, availableSlots);
-    let loadedCount = 0;
-
-    if(filesToProcess.length === 0) return;
-
-    filesToProcess.forEach(file => {
+    
+    files.slice(0, availableSlots).forEach(file => {
         const reader = new FileReader();
-        reader.addEventListener('load', function() {
-            uploadedImages.push(this.result);
-            loadedCount++;
-            if (loadedCount === filesToProcess.length) {
-                renderMediaEngine();
-                updateTextAndCounter();
-            }
-        });
+        reader.onload = function(event) {
+            uploadedImages.push(event.target.result);
+            saveCurrentEditorToState();
+            renderMediaEngine();
+        };
         reader.readAsDataURL(file);
     });
-    mediaUploader.value = ""; 
 });
 
-// --- 4. PHONE MEDIA LAYOUT GRID & CAROUSEL GENERATOR ---
-function renderMediaEngine() {
-    sortContainer.innerHTML = "";
-    mediaPreviewWrapper.innerHTML = "";
-    
-    if (prevSlideBtn && nextSlideBtn) {
-        prevSlideBtn.style.display = 'none';
-        nextSlideBtn.style.display = 'none';
-    }
-
-    if (uploadedImages.length === 0) {
-        mediaPlaceholder.style.display = 'block';
-        return;
-    }
-    mediaPlaceholder.style.display = 'none';
-
-    if (currentPlatform === 'instagram' || currentPlatform === 'tiktok') {
-        // BUILD SLIDER CAROUSEL
-        const carouselTrack = document.createElement('div');
-        carouselTrack.className = 'carousel-track';
-        mediaPreviewWrapper.appendChild(carouselTrack);
-
-        uploadedImages.forEach((imgData, index) => {
-            const slide = document.createElement('div');
-            slide.className = 'carousel-item';
-            slide.innerHTML = `<img src="${imgData}" alt="Slide ${index}">`;
-            carouselTrack.appendChild(slide);
-            buildSortableThumbnail(imgData, index);
-        });
-
-        if (uploadedImages.length > 1 && prevSlideBtn && nextSlideBtn) {
-            prevSlideBtn.style.display = 'flex';
-            nextSlideBtn.style.display = 'flex';
-        }
-
-    } else {
-        // BUILD TWITTER STANDALONE GRID
-        const gridContainer = document.createElement('div');
-        gridContainer.className = `image-grid grid-${uploadedImages.length}`;
-        mediaPreviewWrapper.appendChild(gridContainer);
-
-        uploadedImages.forEach((imgData, index) => {
-            const imgElement = document.createElement('img');
-            imgElement.src = imgData;
-            imgElement.className = 'grid-img';
-            gridContainer.appendChild(imgElement);
-            buildSortableThumbnail(imgData, index); // FIXED: Removed extra variable token
-        });
-    }
-}
-
-// Carousel Horizontal Arrow Controller Actions
-if (nextSlideBtn) {
+// Mock Carousel Navigation Arrows click handlers
+if (prevSlideBtn && nextSlideBtn) {
+    prevSlideBtn.addEventListener('click', () => {
+        const track = mediaPreviewWrapper.querySelector('.carousel-track');
+        if (track) track.scrollBy({ left: -track.offsetWidth, behavior: 'smooth' });
+    });
     nextSlideBtn.addEventListener('click', () => {
-        const track = document.querySelector('.carousel-track');
+        const track = mediaPreviewWrapper.querySelector('.carousel-track');
         if (track) track.scrollBy({ left: track.offsetWidth, behavior: 'smooth' });
     });
 }
-if (prevSlideBtn) {
-    prevSlideBtn.addEventListener('click', () => {
-        const track = document.querySelector('.carousel-track');
-        if (track) track.scrollBy({ left: -track.offsetWidth, behavior: 'smooth' });
-    });
-}
 
-// Drag & Drop Sorting Panel Engine
-function buildSortableThumbnail(imgData, index) {
-    const thumb = document.createElement('div');
-    thumb.className = 'sort-thumb';
-    thumb.style.backgroundImage = `url(${imgData})`;
-    thumb.setAttribute('draggable', 'true');
-    thumb.setAttribute('data-index', index);
+// Mode Selection (Standard vs. A/B split)
+if (modeBtnContainer) {
+    modeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            modeButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            builderMode = this.getAttribute('data-mode');
 
-    const delBtn = document.createElement('button');
-    delBtn.className = 'thumb-del';
-    delBtn.innerText = '✕';
-    delBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        uploadedImages.splice(index, 1);
-        renderMediaEngine();
-        updateTextAndCounter();
-    });
-    thumb.appendChild(delBtn);
-
-    thumb.addEventListener('dragstart', function() { draggedIndex = index; this.style.opacity = '0.4'; });
-    thumb.addEventListener('dragend', function() { this.style.opacity = '1'; draggedIndex = null; });
-    thumb.addEventListener('dragover', function(e) { e.preventDefault(); });
-    thumb.addEventListener('drop', function() {
-        const targetIndex = parseInt(this.getAttribute('data-index'));
-        if (draggedIndex !== null && draggedIndex !== targetIndex) {
-            const movedItem = uploadedImages.splice(draggedIndex, 1)[0];
-            uploadedImages.splice(targetIndex, 0, movedItem);
-            renderMediaEngine();
-        }
-    });
-    sortContainer.appendChild(thumb);
-}
-
-// --- 5. COMPLIANCE AUDITING SYSTEMS ---
-function updateTextAndCounter() {
-    const textLength = postInput.value.length;
-    const currentLimit = platformSettings[currentPlatform].limit;
-    const textValue = postInput.value;
-    
-    if (textValue === "") {
-        previewText.innerText = "Your live caption preview will show up right here as you type...";
-    } else {
-        previewText.innerText = textValue;
-    }
-    
-    charCountDisplay.innerText = textLength;
-    
-    if (textLength > currentLimit || textLength === 0) {
-        counterBadge.classList.add('warning');
-        auditLength.innerText = `✕ Exceeds ${currentPlatform === 'twitter' ? 'X' : currentPlatform} limit (${textLength}/${currentLimit})`;
-        auditLength.className = "audit-item audit-fail";
-    } else {
-        counterBadge.classList.remove('warning');
-        auditLength.innerText = `✓ Length complies with ${currentPlatform === 'twitter' ? 'X' : currentPlatform} criteria`;
-        auditLength.className = "audit-item audit-pass";
-    }
-    
-    const hashtagCount = (textValue.match(/#/g) || []).length;
-    if (hashtagCount > 3) {
-        auditLinks.innerText = `✕ Too many hashtags (${hashtagCount}/3). Looks spammy.`;
-        auditLinks.className = "audit-item audit-fail";
-    } else {
-        auditLinks.innerText = `✓ Hashtag optimization looks clean (${hashtagCount}/3)`;
-        auditLinks.className = "audit-item audit-pass";
-    }
-    
-    if (uploadedImages.length === 0) {
-        if (currentPlatform === 'tiktok') {
-            auditMedia.innerText = `✕ TikTok strictly requires a video attachment`;
-            auditMedia.className = "audit-item audit-fail";
-        } else {
-            auditMedia.innerText = `✓ Text-only post structure approved for ${currentPlatform === 'twitter' ? 'X' : 'Instagram'}`;
-            auditMedia.className = "audit-item audit-pass";
-        }
-    } else {
-        auditMedia.innerText = `✓ Media assets attached successfully (${uploadedImages.length}/4)`;
-        auditMedia.className = "audit-item audit-pass";
-    }
-    
-    if (handleCheckbox.checked) {
-        previewHandle.innerText = platformSettings[currentPlatform].placeholder;
-    } else {
-        previewHandle.innerText = "@YourRealBrand";
-    }
-}
-
-postInput.addEventListener('input', updateTextAndCounter);
-handleCheckbox.addEventListener('change', updateTextAndCounter);
-
-// --- 6. PAGE ROUTING VIEW SWITCHER ---
-if (navSandbox && navCommunity && sandboxView && communityView) {
-    navSandbox.addEventListener('click', () => {
-        sandboxView.classList.remove('hidden');
-        communityView.classList.add('hidden');
-    });
-
-    navCommunity.addEventListener('click', () => {
-        communityView.classList.remove('hidden');
-        sandboxView.classList.add('hidden');
-        
-        // Initialize and fire our new queue tracking database system
-        initializeCritiqueQueue();
-        currentQueueIndex = 0; // Always start at your post first
-        loadActiveQueuePost();
-    });
-}
-
-// --- 7. STAGE DATA SYNC ENGINE (ORDER OF OPERATIONS CORRECTED) ---
-function syncToCommunityStage() {
-    const anonTextDelivery = document.getElementById('arena-text-delivery');
-    const anonPlatformBadge = document.getElementById('anon-platform-badge');
-    const arenaMediaFrame = document.getElementById('arena-media-frame');
-    const anonAvatar = document.querySelector('.anon-avatar');
-    const anonDisplayHandle = document.getElementById('anon-display-handle');
-    
-    // 1. Sync caption text
-    if (postInput && anonTextDelivery) {
-        if (postInput.value.trim() !== "") {
-            anonTextDelivery.innerText = postInput.value;
-        } else {
-            anonTextDelivery.innerText = "No caption text drafted for this submission.";
-        }
-    }
-    
-    // 2. Sync platform label badge
-    if (anonPlatformBadge) {
-        const currentPlatformName = currentPlatform === 'twitter' ? 'X / Twitter' : currentPlatform.charAt(0).toUpperCase() + currentPlatform.slice(1);
-        anonPlatformBadge.innerText = `Target: ${currentPlatformName} Feed`;
-    }
-
-    // 3. Sync media visual engine FIRST so innerHTML doesn't overwrite our overlays
-    if (arenaMediaFrame && mediaPreviewWrapper) {
-        if (uploadedImages.length > 0) {
-            arenaMediaFrame.innerHTML = mediaPreviewWrapper.innerHTML;
-            
-            const commPrevBtn = arenaMediaFrame.querySelector('#prev-slide-btn');
-            const commNextBtn = arenaMediaFrame.querySelector('#next-slide-btn');
-            const commTrack = arenaMediaFrame.querySelector('.carousel-track');
-
-            if (uploadedImages.length > 1) {
-                if (commPrevBtn) {
-                    commPrevBtn.style.display = 'flex';
-                    commPrevBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (commTrack) commTrack.scrollBy({ left: -commTrack.offsetWidth, behavior: 'smooth' });
-                    });
-                }
-                if (commNextBtn) {
-                    commNextBtn.style.display = 'flex';
-                    commNextBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (commTrack) commTrack.scrollBy({ left: commTrack.offsetWidth, behavior: 'smooth' });
-                    });
-                }
+            if (builderMode === 'abtest') {
+                variantTabsContainer.classList.remove('hidden');
+                // Open Variant A by default
+                variantTabs.forEach(t => t.classList.remove('active'));
+                variantTabs[0].classList.add('active');
+                loadVariantToEditor('A');
+            } else {
+                variantTabsContainer.classList.add('hidden');
+                loadVariantToEditor('A'); // Fallback to A state
             }
+        });
+    });
+}
 
-            // FORCE FACTORY-DIRECT DIMENSIONS REGARDLESS OF TAB INHERITANCE
-            const trackElement = arenaMediaFrame.querySelector('.carousel-track');
-            const gridElement = arenaMediaFrame.querySelector('.image-grid');
-
-            if (currentPlatform === 'instagram') {
-                arenaMediaFrame.style.aspectRatio = "1 / 1";
-                arenaMediaFrame.style.maxWidth = "100%";
-                arenaMediaFrame.style.height = "auto";
-                if (trackElement) trackElement.style.aspectRatio = "1 / 1";
-            } else if (currentPlatform === 'tiktok') {
-                arenaMediaFrame.style.aspectRatio = "9 / 16";
-                arenaMediaFrame.style.maxWidth = "320px";
-                arenaMediaFrame.style.height = "568px"; 
-                arenaMediaFrame.style.margin = "0 auto";
-                if (trackElement) trackElement.style.aspectRatio = "9 / 16";
-            } else if (currentPlatform === 'twitter') {
-                arenaMediaFrame.style.aspectRatio = "16 / 9";
-                arenaMediaFrame.style.maxWidth = "100%";
-                arenaMediaFrame.style.height = "auto";
-                if (gridElement) gridElement.style.aspectRatio = "16 / 9";
-            }
-        } else {
-            arenaMediaFrame.innerHTML = `<span class="frame-placeholder">[ Reviewer Media Preview Window ]</span>`;
-            arenaMediaFrame.style.aspectRatio = "auto";
-            arenaMediaFrame.style.height = "auto";
-        }
-    }
-
-    // 4. APPLY IDENTITY MASKING LAST (Ensures it injects on top of images)
-    const oldBox = arenaMediaFrame ? arenaMediaFrame.querySelector('.privacy-blur-box') : null;
-    if (oldBox) oldBox.remove();
-
-    if (hideIdentityCheckbox && hideIdentityCheckbox.checked) {
-        if (anonDisplayHandle) anonDisplayHandle.innerText = "@Anonymous_Reviewee";
-        if (anonAvatar) {
-            anonAvatar.innerText = "❌";
-            anonAvatar.classList.add('is-censored');
-        }
-        
-        if (arenaMediaFrame && uploadedImages.length > 0) {
-            const blurBox = document.createElement('div');
-            blurBox.className = 'privacy-blur-box';
+// Variant tabs edit controller
+if (variantTabsContainer) {
+    variantTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            if (builderMode !== 'abtest') return;
             
-            let isDragging = false;
-            blurBox.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                e.preventDefault();
-            });
+            saveCurrentEditorToState();
+
+            variantTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
             
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                const rect = arenaMediaFrame.getBoundingClientRect();
-                let x = e.clientX - rect.left - (blurBox.offsetWidth / 2);
-                let y = e.clientY - rect.top - (blurBox.offsetHeight / 2);
-                
-                if(x < 0) x = 0;
-                if(y < 0) y = 0;
-                if(x > rect.width - blurBox.offsetWidth) x = rect.width - blurBox.offsetWidth;
-                if(y > rect.height - blurBox.offsetHeight) y = rect.height - blurBox.offsetHeight;
-                
-                blurBox.style.left = x + 'px';
-                blurBox.style.top = y + 'px';
-            });
-            
-            document.addEventListener('mouseup', () => { isDragging = false; });
-            arenaMediaFrame.appendChild(blurBox);
-        }
-        
-    } else {
-        if (anonDisplayHandle) anonDisplayHandle.innerText = platformSettings[currentPlatform].placeholder + "_42";
-        if (anonAvatar) {
-            anonAvatar.innerText = "👤";
-            anonAvatar.classList.remove('is-censored');
-        }
-    }
+            const variant = this.getAttribute('data-variant');
+            loadVariantToEditor(variant);
+        });
+    });
 }
 
 // ==========================================
-// 8. MULTI-POST PEER FEEDBACK QUEUE MATRIX
+// 5. REVIEW QUEUE AND FEEDBACK CONTROLLER
 // ==========================================
-
-// Complete database of mock community posts waiting for peer review
 let critiqueQueue = [];
 let currentQueueIndex = 0;
+let analyticsDatabase = [];
 
 function initializeCritiqueQueue() {
-    // Post 0 is ALWAYS the user's fresh workspace draft pulled live from the sandbox
-    const userCaption = postInput.value.trim() !== "" ? postInput.value : "No caption text drafted for this submission.";
-    const userPlatformName = currentPlatform === 'twitter' ? 'X / Twitter' : currentPlatform.charAt(0).toUpperCase() + currentPlatform.slice(1);
-    
-    let userHandle = "@YourRealBrand";
-    let isCensoredActive = false;
-    
-    if (hideIdentityCheckbox && hideIdentityCheckbox.checked) {
-        userHandle = "@Anonymous_Reviewee";
-        isCensoredActive = true;
+    critiqueQueue = [];
+
+    if (builderMode === 'abtest') {
+        // Group BOTH into a single dual-post item in the queue!
+        const capA = abPostState.A.caption.trim() !== "" ? abPostState.A.caption : "No caption text drafted for Variant A.";
+        const capB = abPostState.B.caption.trim() !== "" ? abPostState.B.caption : "No caption text drafted for Variant B.";
+        
+        critiqueQueue.push({
+            isABTest: true,
+            selectedWinner: null, // Will hold 'A' or 'B' depending on peer vote
+            platformBadge: `Target: A/B Split-Test Matchup`,
+            platformA: abPostState.A.platform,
+            platformB: abPostState.B.platform,
+            captionA: capA,
+            captionB: capB,
+            mediaHTML_A: abPostState.A.images.length > 0 ? buildPreviewHTML(abPostState.A.images, abPostState.A.platform) : `<span class="frame-placeholder">[ No Media Variant A ]</span>`,
+            mediaHTML_B: abPostState.B.images.length > 0 ? buildPreviewHTML(abPostState.B.images, abPostState.B.platform) : `<span class="frame-placeholder">[ No Media Variant B ]</span>`,
+            forceCensorA: abPostState.A.censored,
+            forceCensorB: abPostState.B.censored
+        });
     } else {
-        userHandle = platformSettings[currentPlatform].placeholder + "_42";
+        // Standard Mode - Load Variant A only
+        const capA = abPostState.A.caption.trim() !== "" ? abPostState.A.caption : "No caption text drafted for this submission.";
+        const platA = abPostState.A.platform;
+        critiqueQueue.push({
+            isABTest: false,
+            handle: abPostState.A.censored ? "@Anonymous_Reviewee" : platformSettings[platA].placeholder + "_42",
+            platformBadge: `Target: ${platA.charAt(0).toUpperCase() + platA.slice(1)} Feed`,
+            platform: platA,
+            caption: capA,
+            mediaHTML: abPostState.A.images.length > 0 ? buildPreviewHTML(abPostState.A.images, platA) : `<span class="frame-placeholder">[ Reviewer Media Preview Window ]</span>`,
+            hasMedia: abPostState.A.images.length > 0,
+            forceCensor: abPostState.A.censored
+        });
     }
 
-    critiqueQueue = [
+    // Add Simulated Community Posts
+    critiqueQueue.push(
         {
-            isUserPost: true,
-            handle: userHandle,
-            platformBadge: `Target: ${userPlatformName} Feed`,
-            platform: currentPlatform,
-            caption: userCaption,
-            mediaHTML: uploadedImages.length > 0 ? mediaPreviewWrapper.innerHTML : `<span class="frame-placeholder">[ Reviewer Media Preview Window ]</span>`,
-            hasMedia: uploadedImages.length > 0,
-            forceCensor: isCensoredActive
-        },
-        {
-            isUserPost: false,
+            isABTest: false,
             handle: "@Alpha_Growth_Lab",
             platformBadge: "Target: X / Twitter Feed",
             platform: "twitter",
@@ -435,19 +432,41 @@ function initializeCritiqueQueue() {
             forceCensor: false
         },
         {
-            isUserPost: false,
+            isABTest: false,
             handle: "@Design_Vibe_Co",
             platformBadge: "Target: Instagram Feed",
             platform: "instagram",
             caption: "Testing out a high-contrast brutalist layout aesthetic for our Q3 digital asset carousel. Do the neon elements conflict with the background frame grid layout or pass readability checks?",
-            mediaHTML: `<div class="carousel-track" style="aspect-ratio: 1/1;"><div class="carousel-item"><img src="https://picsum.photos/600/600?random=1" alt="Mock Design"></div></div>`,
+            mediaHTML: `<div class="carousel-track" style="aspect-ratio: 1/1;"><div class="carousel-item" style="width:100%; height:100%; background:url('https://picsum.photos/600/600?random=1') center/cover no-repeat;"></div></div>`,
             hasMedia: true,
             forceCensor: false
         }
-    ];
+    );
 }
 
-// Renders the specific active post index onto the Left Card Column layout
+// Utility to generate structured preview layouts outside the live editor workspace
+function buildPreviewHTML(images, platform) {
+    if (platform === 'twitter') {
+        let gridClass = 'grid-single';
+        if (images.length === 2) gridClass = 'grid-double';
+        if (images.length === 3) gridClass = 'grid-triple';
+        if (images.length >= 4) gridClass = 'grid-quad';
+        return `
+            <div class="image-grid ${gridClass}" style="display: grid; gap: 4px; width: 100%; height: 100%;">
+                ${images.slice(0, 4).map(img => `<div class="grid-item" style="background: url(${img}) center/cover no-repeat; width:100%; height:100%;"></div>`).join('')}
+            </div>
+        `;
+    } else {
+        return `
+            <div class="carousel-track" style="display: flex; width: 100%; height: 100%;">
+                ${images.map(img => `<div class="carousel-item" style="min-width: 100%; height: 100%; background: url(${img}) center/cover no-repeat;"></div>`).join('')}
+            </div>
+            <button id="prev-slide-btn" class="nav-arrow prev-arrow" style="${images.length > 1 ? 'display:flex' : 'display:none'}">‹</button>
+            <button id="next-slide-btn" class="nav-arrow next-arrow" style="${images.length > 1 ? 'display:flex' : 'display:none'}">›</button>
+        `;
+    }
+}
+
 function loadActiveQueuePost() {
     const activePost = critiqueQueue[currentQueueIndex];
     
@@ -457,119 +476,229 @@ function loadActiveQueuePost() {
     const anonAvatar = document.querySelector('.anon-avatar');
     const anonDisplayHandle = document.getElementById('anon-display-handle');
 
-    // Update Text blocks
-    if (anonTextDelivery) anonTextDelivery.innerText = activePost.caption;
-    if (anonPlatformBadge) anonPlatformBadge.innerText = activePost.platformBadge;
-    if (anonDisplayHandle) anonDisplayHandle.innerText = activePost.handle;
-
-    // Apply specific Avatar Privacy profiles
-    if (anonAvatar) {
-        if (activePost.forceCensor) {
-            anonAvatar.innerText = "❌";
-            anonAvatar.classList.add('is-censored');
-        } else {
-            anonAvatar.innerText = "👤";
-            anonAvatar.classList.remove('is-censored');
-        }
+    // 1. Reset layout classes on the media frame
+    if (arenaMediaFrame) {
+        arenaMediaFrame.className = "arena-media-frame";
+        arenaMediaFrame.innerHTML = "";
+        arenaMediaFrame.style.aspectRatio = "auto";
+        arenaMediaFrame.style.maxWidth = "100%";
+        arenaMediaFrame.style.height = "auto";
     }
 
-    // Load and adapt media aspect rules dynamically
-    if (arenaMediaFrame) {
-        arenaMediaFrame.innerHTML = activePost.mediaHTML;
-        
-        // Wipe old classes and privacy box layers
-        arenaMediaFrame.className = "arena-media-frame";
-        const oldBox = arenaMediaFrame.querySelector('.privacy-blur-box');
-        if (oldBox) oldBox.remove();
+    // 2. HANDLE A/B TEST SPLIT LAYOUT RENDERING
+    if (activePost.isABTest) {
+        if (anonDisplayHandle) anonDisplayHandle.innerText = "A/B Split-Test Workspace";
+        if (anonPlatformBadge) anonPlatformBadge.innerText = activePost.platformBadge;
+        if (anonAvatar) {
+            anonAvatar.innerText = "⚖️";
+            anonAvatar.classList.remove('is-censored');
+        }
 
-        // If user selected privacy box on their own post, inject it onto Post 0
-        if (activePost.forceCensor && activePost.hasMedia) {
-            const blurBox = document.createElement('div');
-            blurBox.className = 'privacy-blur-box';
-            
-            // Wire up instant dragging listeners
-            let isDragging = false;
-            blurBox.addEventListener('mousedown', (e) => { e.preventDefault(); isDragging = true; });
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                const rect = arenaMediaFrame.getBoundingClientRect();
-                let x = e.clientX - rect.left - (blurBox.offsetWidth / 2);
-                let y = e.clientY - rect.top - (blurBox.offsetHeight / 2);
-                
-                if(x < 0) x = 0; if(y < 0) y = 0;
-                if(x > rect.width - blurBox.offsetWidth) x = rect.width - blurBox.offsetWidth;
-                if(y > rect.height - blurBox.offsetHeight) y = rect.height - blurBox.offsetHeight;
-                
-                blurBox.style.left = x + 'px'; blurBox.style.top = y + 'px';
+        if (anonTextDelivery) anonTextDelivery.innerText = "Compare both draft variants below and cast your vote on the winning strategy.";
+
+        // Inject dynamic side-by-side preview structure
+        if (arenaMediaFrame) {
+            // FORCE vertical stacking so the voting row sits cleanly underneath the grid
+            arenaMediaFrame.style.flexDirection = "column";
+            arenaMediaFrame.style.alignItems = "stretch";
+            arenaMediaFrame.style.justifyContent = "flex-start";
+
+            arenaMediaFrame.innerHTML = `
+                <div class="ab-split-preview-grid" style="width: 100%; display: flex; gap: 16px; padding: 15px; box-sizing: border-box;">
+                    <!-- VARIANT A COLUMN -->
+                    <div class="variant-column" style="flex: 1; display: flex; flex-direction: column; background-color: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; box-sizing: border-box;">
+                        <span class="variant-label-tag" style="align-self: flex-start; background-color: #3b82f6; color: white; font-size: 0.7rem; font-weight: bold; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px;">Variant A (${activePost.platformA.toUpperCase()})</span>
+                        <p style="font-size: 0.8rem; line-height:1.4; color: #cbd5e1; margin: 0 0 12px 0; min-height: 38px;">${activePost.captionA}</p>
+                        <div class="variant-media-wrapper" style="width:100%; aspect-ratio:1/1; position:relative; overflow:hidden; border-radius:6px; background:#0f172a;">
+                            ${activePost.mediaHTML_A}
+                        </div>
+                    </div>
+                    <!-- VARIANT B COLUMN -->
+                    <div class="variant-column" style="flex: 1; display: flex; flex-direction: column; background-color: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; box-sizing: border-box;">
+                        <span class="variant-label-tag" style="background-color: #8b5cf6; align-self: flex-start; color: white; font-size: 0.7rem; font-weight: bold; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px;">Variant B (${activePost.platformB.toUpperCase()})</span>
+                        <p style="font-size: 0.8rem; line-height:1.4; color: #cbd5e1; margin: 0 0 12px 0; min-height: 38px;">${activePost.captionB}</p>
+                        <div class="variant-media-wrapper" style="width:100%; aspect-ratio:1/1; position:relative; overflow:hidden; border-radius:6px; background:#0f172a;">
+                            ${activePost.mediaHTML_B}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Create a wide voting dock pinned underneath the phones
+            const votingDiv = document.createElement('div');
+            votingDiv.className = "voting-container";
+            votingDiv.style.cssText = "display: flex; gap: 12px; width: 100%; padding: 15px; box-sizing: border-box; border-top: 1px solid #1e293b; justify-content: center;";
+            votingDiv.innerHTML = `
+                <button class="btn-vote" id="vote-a-btn" style="flex: 1; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.2s;">Vote Variant A</button>
+                <button class="btn-vote" id="vote-b-btn" style="flex: 1; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.2s;">Vote Variant B</button>
+            `;
+            arenaMediaFrame.appendChild(votingDiv);
+
+            // Add Click Handlers for Voting Buttons
+            const voteABtn = arenaMediaFrame.querySelector('#vote-a-btn');
+            const voteBBtn = arenaMediaFrame.querySelector('#vote-b-btn');
+
+            voteABtn.addEventListener('click', () => {
+                activePost.selectedWinner = 'Variant A';
+                voteABtn.classList.add('selected');
+                voteBBtn.classList.remove('selected');
             });
-            document.addEventListener('mouseup', () => { isDragging = false; });
-            arenaMediaFrame.appendChild(blurBox);
+
+            voteBBtn.addEventListener('click', () => {
+                activePost.selectedWinner = 'Variant B';
+                voteBBtn.classList.add('selected');
+                voteABtn.classList.remove('selected');
+            });
         }
 
-        // Set structural layout constraints depending on the post platform type
-        const trackElement = arenaMediaFrame.querySelector('.carousel-track');
-        const gridElement = arenaMediaFrame.querySelector('.image-grid');
+    } else {
+        // 3. STANDARD SINGLE POST RENDERING
+        if (anonTextDelivery) anonTextDelivery.innerText = activePost.caption;
+        if (anonPlatformBadge) anonPlatformBadge.innerText = activePost.platformBadge;
+        if (anonDisplayHandle) anonDisplayHandle.innerText = activePost.handle;
 
-        if (activePost.platform === 'instagram') {
-            arenaMediaFrame.style.aspectRatio = "1 / 1";
-            arenaMediaFrame.style.maxWidth = "100%";
-            arenaMediaFrame.style.height = "auto";
-            if (trackElement) trackElement.style.aspectRatio = "1 / 1";
-        } else if (activePost.platform === 'tiktok') {
-            arenaMediaFrame.style.aspectRatio = "9 / 16";
-            arenaMediaFrame.style.maxWidth = "320px";
-            arenaMediaFrame.style.height = "568px";
-            arenaMediaFrame.style.margin = "0 auto";
-            if (trackElement) trackElement.style.aspectRatio = "9 / 16";
-        } else if (activePost.platform === 'twitter') {
-            arenaMediaFrame.style.aspectRatio = "16 / 9";
-            arenaMediaFrame.style.maxWidth = "100%";
-            arenaMediaFrame.style.height = "auto";
-            if (gridElement) gridElement.style.aspectRatio = "16 / 9";
-        } else {
-            arenaMediaFrame.style.aspectRatio = "auto";
-            arenaMediaFrame.style.height = "auto";
+        if (anonAvatar) {
+            if (activePost.forceCensor) {
+                anonAvatar.innerText = "❌";
+                anonAvatar.classList.add('is-censored');
+            } else {
+                anonAvatar.innerText = "👤";
+                anonAvatar.classList.remove('is-censored');
+            }
         }
 
-        // Re-hook active slide control vectors for peer media structures
-        const commPrevBtn = arenaMediaFrame.querySelector('#prev-slide-btn');
-        const commNextBtn = arenaMediaFrame.querySelector('#next-slide-btn');
-        if (commPrevBtn && commNextBtn && trackElement) {
-            commPrevBtn.style.display = 'flex';
-            commNextBtn.style.display = 'flex';
-            commPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); trackElement.scrollBy({ left: -trackElement.offsetWidth, behavior: 'smooth' }); });
-            commNextBtn.addEventListener('click', (e) => { e.stopPropagation(); trackElement.scrollBy({ left: trackElement.offsetWidth, behavior: 'smooth' }); });
+        if (arenaMediaFrame) {
+            arenaMediaFrame.innerHTML = activePost.mediaHTML;
+
+            // Apply platform aspect ratio layouts...
+            const trackElement = arenaMediaFrame.querySelector('.carousel-track');
+            const gridElement = arenaMediaFrame.querySelector('.image-grid');
+
+            if (activePost.platform === 'instagram') {
+                arenaMediaFrame.style.aspectRatio = "1 / 1";
+                if (trackElement) trackElement.style.aspectRatio = "1 / 1";
+            } else if (activePost.platform === 'tiktok') {
+                arenaMediaFrame.style.aspectRatio = "9 / 16";
+                arenaMediaFrame.style.maxWidth = "320px";
+                arenaMediaFrame.style.height = "568px";
+                arenaMediaFrame.style.margin = "0 auto";
+                if (trackElement) trackElement.style.aspectRatio = "9 / 16";
+            } else if (activePost.platform === 'twitter') {
+                arenaMediaFrame.style.aspectRatio = "16 / 9";
+                if (gridElement) gridElement.style.aspectRatio = "16 / 9";
+            }
         }
     }
 }
 
-// Connect listeners directly to your range slider input points
-if (sliderHook && valHook) { sliderHook.addEventListener('input', (e) => { valHook.innerText = `${e.target.value}/100`; }); }
-if (sliderFlow && valFlow) { sliderFlow.addEventListener('input', (e) => { valFlow.innerText = `${e.target.value}/100`; }); }
-if (sliderValue && valValue) { sliderValue.addEventListener('input', (e) => { valValue.innerText = `${e.target.value}/100`; }); }
+// Wire real-time metric score counters
+if (sliderHook && valHook) sliderHook.addEventListener('input', (e) => { valHook.innerText = `${e.target.value}/100`; });
+if (sliderFlow && valFlow) sliderFlow.addEventListener('input', (e) => { valFlow.innerText = `${e.target.value}/100`; });
+if (sliderValue && valValue) sliderValue.addEventListener('input', (e) => { valValue.innerText = `${e.target.value}/100`; });
 
-// Handle submitting critiques and stepping through the matrix queue
 if (submitBtn) {
     submitBtn.addEventListener('click', () => {
-        alert(`Critique Draft Logged for Post ${currentQueueIndex + 1}/${critiqueQueue.length}!\nHook Score: ${sliderHook.value}\nPacing Score: ${sliderFlow.value}\nValue Score: ${sliderValue.value}`);
+        const activePost = critiqueQueue[currentQueueIndex];
         
-        // Cycle cursor forward
+        // Validation: In A/B mode, prevent submission until they vote!
+        if (activePost.isABTest && !activePost.selectedWinner) {
+            alert("⚠️ Please cast your vote on either Variant A or Variant B before submitting your scorecard!");
+            return;
+        }
+
+        const currentCritiqueData = {
+            handle: activePost.isABTest ? "A/B Matchup Post" : activePost.handle,
+            platformBadge: activePost.platformBadge,
+            hookScore: parseInt(sliderHook.value),
+            flowScore: parseInt(sliderFlow.value),
+            valueScore: parseInt(sliderValue.value),
+            notes: reviewerNotes.value.trim() !== "" ? reviewerNotes.value.trim() : "No descriptive critique markers left.",
+            winner: activePost.isABTest ? activePost.selectedWinner : null
+        };
+
+        analyticsDatabase.push(currentCritiqueData);
+
+        // Update HTML counters
+        const totalCounter = document.getElementById('log-counter-total');
+        const emptyState = document.getElementById('history-empty-state');
+        const logGrid = document.getElementById('analytics-log-grid');
+
+        if (totalCounter) totalCounter.innerText = analyticsDatabase.length;
+        if (emptyState) emptyState.style.display = 'none';
+
+        if (logGrid) {
+            const logCard = document.createElement('div');
+            logCard.className = 'history-log-card';
+            
+            // Build the dynamic scorecard content
+            let cardHTML = `
+                <div class="log-meta-line">
+                    <span class="log-handle-tag">${currentCritiqueData.handle}</span>
+                    <span class="log-platform-pill" style="color: #3b82f6;">${currentCritiqueData.platformBadge.replace('Target: ', '')}</span>
+                </div>
+            `;
+
+            // If an A/B winner exists, inject a high-visibility winner badge!
+            if (currentCritiqueData.winner) {
+                cardHTML += `
+                    <div style="background-color: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); padding: 8px; border-radius: 6px; text-align: center; margin-bottom: 8px;">
+                        <span style="font-size: 0.8rem; color: #10b981; font-weight: bold;">👑 Chosen Winner: ${currentCritiqueData.winner}</span>
+                    </div>
+                `;
+            }
+
+            cardHTML += `
+                <div class="log-metric-bars">
+                    <div class="log-bar-row"><span>🪝 Hook Strength:</span><strong>${currentCritiqueData.hookScore}/100</strong></div>
+                    <div class="log-bar-row"><span>👁️ Visual Pacing:</span><strong>${currentCritiqueData.flowScore}/100</strong></div>
+                    <div class="log-bar-row"><span>🔥 Value/Engagement:</span><strong>${currentCritiqueData.valueScore}/100</strong></div>
+                </div>
+                <p class="log-notes-quote">"${currentCritiqueData.notes}"</p>
+            `;
+            
+            logCard.innerHTML = cardHTML;
+            logGrid.insertBefore(logCard, logGrid.firstChild);
+        }
+
+        // Advance to next index
         currentQueueIndex++;
         
         if (currentQueueIndex < critiqueQueue.length) {
-            // Load the next post from the community pool
             loadActiveQueuePost();
             
-            // Soft reset sliders to default 50 for next calculation pass
-            if(sliderHook) { sliderHook.value = 50; valHook.innerText = "50/100"; }
-            if(sliderFlow) { sliderFlow.value = 50; valFlow.innerText = "50/100"; }
-            if(sliderValue) { sliderValue.value = 50; valValue.innerText = "50/100"; }
-            if(reviewerNotes) reviewerNotes.value = "";
+            // Slider reset defaults
+            if (sliderHook) { sliderHook.value = 50; valHook.innerText = "50/100"; }
+            if (sliderFlow) { sliderFlow.value = 50; valFlow.innerText = "50/100"; }
+            if (sliderValue) { sliderValue.value = 50; valValue.innerText = "50/100"; }
+            if (reviewerNotes) reviewerNotes.value = "";
         } else {
-            // Queue exhausted! Loop back safely
             alert("🎉 Feedback session complete! You've audited all active peer drafts in the community queue.");
             currentQueueIndex = 0;
             loadActiveQueuePost();
         }
     });
 }
+
+// ==========================================
+// 6. VIEW NAVIGATION PORT ROUTERS
+// ==========================================
+if (navSandbox && navCommunity && sandboxView && communityView) {
+    navSandbox.addEventListener('click', () => {
+        sandboxView.classList.remove('hidden');
+        communityView.classList.add('hidden');
+    });
+
+    navCommunity.addEventListener('click', () => {
+        saveCurrentEditorToState(); // Commit current work before shifting tabs
+        
+        communityView.classList.remove('hidden');
+        sandboxView.classList.add('hidden');
+        
+        initializeCritiqueQueue();
+        currentQueueIndex = 0;
+        loadActiveQueuePost();
+    });
+}
+
+// --- Initialize State on boot ---
+loadVariantToEditor('A');
