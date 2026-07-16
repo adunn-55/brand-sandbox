@@ -1,43 +1,95 @@
-/* Base Page Styling */
+/* ==========================================
+   1. GLOBAL SYSTEM RESETS
+   ========================================== */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #0f172a;
-    color: #f8fafc;
     margin: 0;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 0;
+    background-color: #0b0f19;
+    color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
 }
 
-/* Parent Dashboard Frame layout split */
-.sandbox-container {
-    display: flex;
+/* Central backing container */
+.app-container {
     width: 100%;
-    background-color: #1e293b;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-}
-
-/* NEW: Global view structure rules to keep the layout wide and centered */
-.app-view {
-    width: 100%;
-    max-width: 1100px;
-    margin: 0 auto;
-    display: block;
-}
-
-/* Left Column Workspace Styling */
-.input-panel {
-    flex: 1;
-    padding: 40px;
-    border-right: 1px solid #334155;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
 }
 
+/* ==========================================
+   2. VIEW ROUTING & GENERAL LAYOUTS
+   ========================================== */
+.app-view {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+.app-view.hidden {
+    display: none !important;
+}
+
+/* ==========================================
+   3. SANDBOX BUILDER SPLIT-PANEL (FIXED)
+   ========================================== */
+.builder-container {
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    width: 100%;
+    align-items: flex-start;
+    box-sizing: border-box;
+    margin-top: 20px;
+}
+
+/* Left controls: Scrollable independently */
+.left-panel {
+    flex: 1.2;
+    background-color: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 16px;
+    padding: 24px;
+    box-sizing: border-box;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Right preview: Sticky mock phone */
+.right-panel {
+    flex: 0.8;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    position: sticky;
+    top: 20px;
+    box-sizing: border-box;
+}
+
+/* Styled Scrollbars for Left Panel */
+.left-panel::-webkit-scrollbar {
+    width: 6px;
+}
+.left-panel::-webkit-scrollbar-track {
+    background: #0f172a;
+    border-radius: 10px;
+}
+.left-panel::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+
+/* ==========================================
+   4. INPUTS, TEXTAREAS, & ACTIONS
+   ========================================== */
 .input-group {
     width: 100%;
     margin-bottom: 20px;
@@ -50,27 +102,23 @@ body {
     font-weight: 600;
 }
 
-.input-panel textarea {
+textarea#post-text {
     width: 100%;
     height: 120px;
     background-color: #0f172a;
-    border: 1px solid #475569;
+    border: 1px solid #334155;
     border-radius: 8px;
     color: white;
     padding: 12px;
     box-sizing: border-box;
-    font-size: 1rem;
+    font-size: 0.95rem;
     resize: none;
+    font-family: inherit;
 }
 
-.privacy-toggles {
-    margin-bottom: 24px;
-}
-
-.privacy-toggles label {
-    display: block;
-    margin-bottom: 10px;
-    cursor: pointer;
+textarea#post-text:focus {
+    outline: none;
+    border-color: #3b82f6;
 }
 
 .btn-action {
@@ -84,269 +132,249 @@ body {
     transition: background 0.2s;
 }
 
-.btn-action:hover { background-color: #2563eb; }
-
-/* Right Column Smartphone Container */
-.preview-panel {
-    flex: 1;
-    background-color: #0f172a;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px;
+.btn-action:hover {
+    background-color: #2563eb;
 }
 
-.mock-phone {
+/* Platform Selector Tab Buttons */
+.tab-btn-group {
+    display: flex;
+    gap: 8px;
     width: 100%;
-    max-width: 360px;
-    background-color: #000000;
-    border: 4px solid #334155;
-    border-radius: 24px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.post-header {
-    display: flex;
-    align-items: center;
-    padding: 12px;
-}
-
-.mock-avatar {
-    width: 36px;
-    height: 36px;
-    background-color: #475569;
-    border-radius: 50%;
-    margin-right: 12px;
-}
-
-.post-user-info strong { display: block; font-size: 0.9rem; }
-.post-user-info span { font-size: 0.75rem; color: #94a3b8; }
-
-.post-body {
-    padding: 12px;
-    font-size: 0.9rem;
-    line-height: 1.4;
-}
-
-.mock-media-box {
-    width: 100%;
-    background-color: #1e293b;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #64748b;
-    overflow: hidden;
-}
-
-.media-preview-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-/* Thumbnail Sorting Controls (Left Panel) */
-.sort-container {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-    min-height: 80px;
-    background-color: #0f172a;
-    border: 2px dashed #334155;
-    border-radius: 8px;
-    padding: 10px;
-    align-items: center;
-}
-
-.sort-thumb {
-    position: relative;
-    width: 60px;
-    height: 60px;
-    border-radius: 6px;
-    overflow: hidden;
-    cursor: grab;
-    border: 2px solid #475569;
-    background-size: cover;
-    background-position: center;
-}
-.sort-thumb:active { cursor: grabbing; }
-
-.thumb-del {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 16px;
-    height: 16px;
-    font-size: 10px;
-    cursor: pointer;
-}
-
-/* Dynamic Grids inside phone */
-.image-grid {
-    display: grid;
-    width: 100%;
-    height: 100%;
-    gap: 4px;
-}
-
-.grid-1 { grid-template-columns: 1fr; }
-.grid-2 { grid-template-columns: 1fr 1fr; }
-.grid-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-.grid-3 :first-child { grid-row: span 2; }
-.grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-
-.grid-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.platform-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
 }
 
 .tab-btn {
     flex: 1;
-    background-color: #334155;
+    background-color: #1f2937;
     color: #94a3b8;
-    border: 2px solid transparent;
+    border: 1px solid #374151;
     padding: 10px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-}
-.tab-btn.active { background-color: #3b82f6; color: white; }
-
-.counter-badge {
-    text-align: right;
     font-size: 0.85rem;
-    color: #94a3b8;
-    margin-top: 5px;
+    transition: all 0.2s;
 }
-.counter-badge.warning { color: #ef4444; font-weight: bold; }
 
-.guideline-audit {
-    background-color: #0f172a;
-    border: 1px solid #334155;
-    border-radius: 8px;
-    padding: 15px;
-    margin-top: 10px;
+.tab-btn.active {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
 }
-.audit-item { font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+
+/* Character counters */
+.counter-badge {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    margin-top: 6px;
+    color: #64748b;
+}
+
+/* Pre-flight Audit Board */
+.audit-board {
+    background-color: #0f172a;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #1e293b;
+    margin-bottom: 20px;
+}
+
+.audit-item {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .audit-pass { color: #10b981; }
+.audit-warn { color: #f59e0b; }
 .audit-fail { color: #ef4444; }
 
-/* --- DYNAMIC VISUAL MODIFIERS --- */
-.mock-phone.instagram-mode .post-header { order: 1; }
-.mock-phone.instagram-mode .mock-media-box { order: 2; aspect-ratio: 1 / 1; }
-.mock-phone.instagram-mode .post-body { order: 3; }
-
-.mock-phone.twitter-mode .post-header { order: 1; }
-.mock-phone.twitter-mode .post-body { order: 2; }
-.mock-phone.twitter-mode .mock-media-box { order: 3; background-color: transparent; }
-.mock-phone.twitter-mode .media-preview-wrapper { aspect-ratio: 16 / 9; width: 92%; margin: 0 auto 12px auto; border-radius: 12px; overflow: hidden; }
-.mock-phone.twitter-mode #media-placeholder { display: none; }
-
-/* TikTok Style Layout Modifiers - FIXED CONTAINER HEIGHT */
-.mock-phone.tiktok-mode { 
-    display: flex; 
-    flex-direction: column; 
-    max-width: 350px;  
-    width: 350px;      /* Explicitly locks the width */
-    height: 550px;     /* NEW: Explicitly forces the phone frame to stay wide open */
-    margin: 0 auto;    
-    position: relative; 
-    border-radius: 20px;
-    overflow: hidden;  /* Cleanly clips the edges of the absolute media track */
+/* ==========================================
+   5. SMARTPHONE MOCK PREVIEW CARD
+   ========================================== */
+.mock-phone {
+    width: 100%;
+    max-width: 340px;
+    height: 580px;
+    background-color: #000000;
+    border: 12px solid #1f2937;
+    border-radius: 36px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
-.mock-phone.tiktok-mode .post-header { 
-    order: 1; 
-    position: absolute; 
-    top: 0;
-    left: 0;
+/* Status Bar Simulator */
+.phone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: #000;
+    color: white;
+    font-size: 0.75rem;
+    z-index: 30;
+}
+
+.phone-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #000;
+}
+
+/* Hide scrollbar on inside phone wrapper */
+.phone-scroll-area::-webkit-scrollbar {
+    display: none;
+}
+
+.preview-card {
+    background-color: #000;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-meta {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+}
+
+.avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    background-color: #374151;
+    border-radius: 50%;
+    margin-right: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.meta-names {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-name {
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.profile-sub {
+    font-size: 0.7rem;
+    color: #64748b;
+}
+
+.media-preview-container {
     width: 100%;
-    z-index: 20;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent); 
+    position: relative;
+}
+
+.media-preview-wrapper {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #111827;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.preview-caption {
+    padding: 12px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #e2e8f0;
+}
+
+/* ==========================================
+   6. DYNAMIC PLATFORM MODIFIERS
+   ========================================== */
+
+/* Instagram Mode: Profile -> Media -> Caption */
+.mock-phone.instagram-mode .preview-card {
+    display: flex;
+    flex-direction: column;
+}
+.mock-phone.instagram-mode .preview-meta { order: 1; }
+.mock-phone.instagram-mode .media-preview-container { order: 2; }
+.mock-phone.instagram-mode .preview-caption { order: 3; }
+
+/* X / Twitter Mode: Profile -> Caption -> Media (16/9) */
+.mock-phone.twitter-mode .preview-card {
+    display: flex;
+    flex-direction: column;
+}
+.mock-phone.twitter-mode .preview-meta { order: 1; }
+.mock-phone.twitter-mode .preview-caption { order: 2; }
+.mock-phone.twitter-mode .media-preview-container { 
+    order: 3;
+    padding: 0 12px 12px 12px;
     box-sizing: border-box;
 }
+.mock-phone.twitter-mode .media-preview-wrapper {
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+}
 
-.mock-phone.tiktok-mode .mock-media-box { 
-    order: 2; 
+/* TikTok Mode: Floating full-viewport display */
+.mock-phone.tiktok-mode {
+    height: 580px;
+}
+.mock-phone.tiktok-mode .preview-card {
+    position: relative;
+    height: 100%;
+}
+.mock-phone.tiktok-mode .preview-meta {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 20;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
     width: 100%;
-    height: 100%; /* NEW: Stretches to fill the exact 460px height of the phone frame */
+    box-sizing: border-box;
+}
+.mock-phone.tiktok-mode .media-preview-container {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 5;
-    background-color: #000; /* Dark canvas backing like real TikTok */
-}
-
-.mock-phone.tiktok-mode .media-preview-wrapper {
     width: 100%;
     height: 100%;
+    z-index: 5;
 }
-
-/* FLOATING TEXT LAYER */
-.mock-phone.tiktok-mode .post-body { 
-    order: 3; 
+.mock-phone.tiktok-mode .media-preview-wrapper {
+    aspect-ratio: 9 / 16;
+    height: 100%;
+}
+.mock-phone.tiktok-mode .preview-caption {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
     z-index: 20;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 50%, transparent); 
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
     padding: 30px 12px 16px 12px;
     box-sizing: border-box;
-    pointer-events: none; 
 }
 
-.mock-phone.tiktok-mode .post-body p {
-    color: #ffffff !important;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
-    font-size: 0.85rem;
-    margin: 0;
-}
-
-/* Hide native scrollbars so the carousel looks like a premium app layout */
-.carousel-track::-webkit-scrollbar {
-    display: none;
-}
-
-.carousel-item {
-    flex: 0 0 100%; /* Forces each image card to take up exactly 100% of the phone frame */
-    width: 100%;
-    height: 100%;
-    scroll-snap-align: start; /* Tells the snap engine exactly where to catch the image edge */
-}
-
-.carousel-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Ensure the media box acts as an anchor frame for absolute buttons */
-.mock-media-box {
-    position: relative; 
-    width: 100%;
-}
-
-/* Force the carousel items to fill the container frame tightly */
+/* ==========================================
+   7. IMAGES, CAROUSELS, AND GRIDS
+   ========================================== */
 .carousel-track {
     display: flex;
     width: 100%;
     height: 100%;
-    overflow-x: scroll; /* Force activation of horizontal engine */
+    overflow-x: scroll;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
+}
+.carousel-track::-webkit-scrollbar {
+    display: none;
 }
 
 .carousel-item {
@@ -356,73 +384,85 @@ body {
     scroll-snap-align: start;
 }
 
-/* --- OVERLAY NAVIGATION ARROWS --- */
+/* Drag Sort Thumbnails Row */
+#sort-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    min-height: 60px;
+    padding: 8px;
+    background-color: #0f172a;
+    border: 2px dashed #1e293b;
+    border-radius: 8px;
+    align-items: center;
+}
+
+/* Twitter Grid Framework */
+.image-grid {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    gap: 4px;
+}
+.grid-single { grid-template-columns: 1fr; }
+.grid-double { grid-template-columns: 1fr 1fr; }
+.grid-triple { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.grid-triple :first-child { grid-row: span 2; }
+.grid-quad { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+
+/* Overlay Carousel Nav Arrows */
 .nav-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(15, 23, 42, 0.4); /* Subtly transparent slate */
+    background-color: rgba(15, 23, 42, 0.6);
     color: #f8fafc;
     border: none;
-    font-size: 2rem;
-    width: 40px;
-    height: 40px;
+    font-size: 1.5rem;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background 0.2s, opacity 0.2s;
+    transition: background 0.2s;
     z-index: 15;
-    user-select: none;
-    line-height: 0;
-    padding-bottom: 4px; /* Perfectly centers the directional bracket */
 }
-
 .nav-arrow:hover {
-    background-color: rgba(15, 23, 42, 0.8); /* Darkens clearly on hover */
+    background-color: rgba(15, 23, 42, 0.9);
 }
+.prev-arrow { left: 8px; }
+.next-arrow { right: 8px; }
 
-.prev-arrow { left: 10px; }
-.next-arrow { right: 10px; }
-
-/* REPAIR TWITTER GRID ASPECT CONSTRAINTS */
-.mock-phone.twitter-mode .image-grid {
-    aspect-ratio: 16 / 9;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid #334155;
-}
-
-/* --- THE COMMUNITY ARENA STYLING --- */
+/* ==========================================
+   8. COMMUNITY ARENA & SCORECARDS
+   ========================================== */
 .community-arena {
     width: 100%;
-    max-width: 1100px;
-    margin: 40px auto; /* Generous top/bottom margin gap below sandbox */
-    background-color: #1e293b;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    max-width: 1200px;
     box-sizing: border-box;
 }
 
-.arena-header {
-    margin-bottom: 25px;
-    border-bottom: 1px solid #334155;
-    padding-bottom: 15px;
+.arena-workspace {
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    align-items: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 20px;
 }
 
-.arena-header h2 { margin: 0 0 5px 0; color: #3b82f6; }
-.arena-header p { margin: 0; color: #94a3b8; font-size: 0.95rem; }
-
-/* The Peer Review Card Frame */
+/* Left side review post card */
 .critique-card {
-    background-color: #0f172a; /* Inner dark slate depth */
-    border: 1px solid #334155;
-    border-radius: 12px;
-    padding: 20px;
-    max-width: 600px; /* Constrained width so text is highly readable */
-    margin: 0 auto;
+    flex: 1.1;
+    background-color: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 16px;
+    padding: 24px;
+    box-sizing: border-box;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
 .card-meta {
@@ -443,7 +483,7 @@ body {
 .anon-avatar {
     width: 40px;
     height: 40px;
-    background-color: #334155;
+    background-color: #374151;
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -451,7 +491,10 @@ body {
     font-size: 1.2rem;
 }
 
-.anon-profile strong { display: block; font-size: 0.95rem; color: #f8fafc; }
+.anon-profile strong {
+    display: block;
+    font-size: 0.9rem;
+}
 
 .target-badge {
     display: inline-block;
@@ -474,202 +517,40 @@ body {
     border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-/* Reviewer Content Block layouts */
-.card-display-content {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.arena-text {
-    font-size: 0.95rem;
-    line-height: 1.5;
-    color: #cbd5e1;
-}
-
 .arena-media-frame {
+    position: relative;
     width: 100%;
-    border-radius: 8px;
+    aspect-ratio: 1 / 1;
+    background-color: #0f172a;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
     overflow: hidden;
-    background-color: #1e293b;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.frame-placeholder {
-    padding: 40px;
-    color: #475569;
-    font-size: 0.9rem;
-    text-align: center;
-}
-
-/* --- VIEW MANAGEMENT & COMPACT SWITCHES --- */
-/* FORCE VIEWS TO STACK VERTICALLY INSTEAD OF HORIZONTALLY */
-.app-view {
-    width: 100%;
-    display: flex;
-    flex-direction: column; /* Crucial: Keeps headers on top, workspaces on bottom */
-    justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
-    padding: 20px;
-}
-
-/* Ensure the full community arena wrapper takes up 100% width space */
-.community-arena {
-    width: 100%;
-    max-width: 1100px;
-    background-color: #1e293b;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    box-sizing: border-box;
-}
-
-/* THE TWO-COLUMN SIDE-BY-SIDE GRID WORKSPACE */
-.arena-workspace {
-    display: flex;
-    gap: 30px;
-    align-items: flex-start;
-    width: 100%;
-    box-sizing: border-box;
-    margin-top: 20px;
-}
-
-/* Let both columns balance evenly at 50% width widthwise */
-.community-arena .critique-card {
-    flex: 1;
-    width: 100%;
-    margin: 0; 
-}
-
+/* Right side scorecard controls */
 .critique-scorecard {
-    flex: 1;
-    width: 100%;
-    background-color: #0f172a;
-    border: 1px solid #334155;
-    border-radius: 12px;
+    flex: 0.9;
+    background-color: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 16px;
     padding: 24px;
     box-sizing: border-box;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
-/* Base style layout container validation */
-.sandbox-container {
-    display: flex;
-    width: 100%;
-    max-width: 1100px;
-    background-color: #1e293b;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+.critique-scorecard h3 {
+    margin: 0 0 6px 0;
+    font-size: 1.25rem;
 }
 
-.compact-nav {
-    margin-top: auto; /* Dynamically pushes the link button to the absolute bottom of the left panel */
-    padding-top: 20px;
-    border-top: 1px solid #334155;
-    text-align: center;
+.scorecard-sub {
+    margin: 0 0 25px 0;
+    color: #64748b;
+    font-size: 0.85rem;
 }
-
-.nav-btn-link {
-    background: none;
-    border: none;
-    color: #3b82f6;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: color 0.2s;
-    padding: 0;
-    text-decoration: underline;
-}
-
-.nav-btn-link:hover {
-    color: #60a5fa;
-}
-
-/* Core hidden toggler layer rule */
-.app-view.hidden {
-    display: none !important;
-}
-
-/* --- REGULATE COMMUNITY VIEW MEDIA FORMATTING --- */
-
-/* If checking for Instagram, lock the peer preview window to a clean square layout */
-.mock-phone.instagram-mode ~ #community-view .arena-media-frame,
-.target-badge:contains("Instagram") ~ .card-display-content .arena-media-frame,
-#community-view .carousel-track {
-    width: 100%;
-}
-
-/* Force the cloned carousel items to stretch fully in the peer card too */
-#community-view .carousel-item {
-    flex: 0 0 100%;
-    width: 100%;
-}
-
-/* Force specific platform dimensions inside the community arena card frame */
-.mock-phone.instagram-mode + #community-view .arena-media-frame {
-    aspect-ratio: 1 / 1 !important;
-}
-
-/* If checking for TikTok, stretch the peer preview window vertically to match the 9:16 vibe */
-.mock-phone.tiktok-mode + #community-view .arena-media-frame {
-    aspect-ratio: 9 / 16 !important;
-    max-width: 320px; /* Constrains it slightly so it doesn't get aggressively tall on wide monitors */
-    margin: 0 auto;
-}
-
-/* Ensure the arena media frame cuts off any image bleeding */
-.arena-media-frame {
-    overflow: hidden !important;
-    border: 1px solid #334155;
-    border-radius: 8px;
-}
-
-/* Force the cloned carousel items inside the arena to match the dynamic height */
-.arena-media-frame .carousel-track {
-    height: 100% !important;
-    width: 100% !important;
-}
-
-.arena-media-frame .carousel-item {
-    height: 100% !important;
-    width: 100% !important;
-}
-
-.arena-media-frame .carousel-item img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-}
-
-/* --- CRITIQUE SCORECARD SUB-SYSTEM --- */
-.arena-workspace {
-    display: flex;
-    gap: 30px;
-    align-items: flex-start;
-    width: 100%;
-}
-
-/* Ensure the left card takes up equal balanced space */
-.community-arena .critique-card {
-    flex: 1;
-    margin: 0; /* Clear previous centered auto-margin margins */
-}
-
-/* Right Scorecard Column Wrapper Container */
-.critique-scorecard {
-    flex: 1;
-    background-color: #0f172a;
-    border: 1px solid #334155;
-    border-radius: 12px;
-    padding: 24px;
-    box-sizing: border-box;
-}
-
-.critique-scorecard h3 { margin: 0 0 4px 0; color: #f8fafc; font-size: 1.2rem; }
-.scorecard-sub { margin: 0 0 25px 0; color: #64748b; font-size: 0.85rem; }
 
 .slider-group {
     margin-bottom: 22px;
@@ -689,7 +570,7 @@ body {
 }
 
 .metric-val {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: bold;
     color: #3b82f6;
     background-color: rgba(59, 130, 246, 0.1);
@@ -697,12 +578,12 @@ body {
     border-radius: 6px;
 }
 
-/* Premium Range Input Customization styling rules */
 .score-slider {
     -webkit-appearance: none;
+    appearance: none;
     width: 100%;
     height: 6px;
-    background: #334155;
+    background: #1f2937;
     border-radius: 3px;
     outline: none;
     margin: 0;
@@ -718,9 +599,8 @@ body {
     cursor: pointer;
     transition: transform 0.1s;
 }
-
 .score-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
+    transform: scale(1.25);
 }
 
 .slider-hints {
@@ -731,48 +611,33 @@ body {
     margin-top: 4px;
 }
 
-/* Critique text block styling */
 #reviewer-notes {
     width: 100%;
-    min-height: 80px;
-    background-color: #1e293b;
-    border: 1px solid #334155;
+    height: 100px;
+    background-color: #0f172a;
+    border: 1px solid #1f2937;
     border-radius: 8px;
     color: #f8fafc;
-    padding: 10px;
+    padding: 12px;
     font-family: inherit;
     font-size: 0.9rem;
-    resize: vertical;
+    resize: none;
     box-sizing: border-box;
 }
-
 #reviewer-notes:focus {
     outline: none;
     border-color: #3b82f6;
 }
 
-/* Responsive collapse break logic rule for smaller screens */
-@media (max-width: 850px) {
-    .arena-workspace {
-        flex-direction: column;
-    }
-    .critique-scorecard {
-        width: 100%;
-    }
-}
-
 /* ==========================================
    9. IDENTITY MASKING & PRIVACY SYSTEM
    ========================================== */
-
-/* Censored Avatar Style for the Focus Group */
 .anon-avatar.is-censored {
     background-color: #ef4444 !important;
     color: #ffffff !important;
     animation: pulse-red 2s infinite;
 }
 
-/* The localized dragging censor box */
 .privacy-blur-box {
     position: absolute;
     top: 20%;      
@@ -789,7 +654,6 @@ body {
     cursor: move; 
 }
 
-/* Small identifier tag attached to the upper ring boundary */
 .privacy-blur-box::before {
     content: "🔒 Mask Active";
     position: absolute;
@@ -803,6 +667,7 @@ body {
     padding: 2px 6px;
     border-radius: 4px;
     white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
 @keyframes pulse-red {
@@ -811,40 +676,157 @@ body {
     100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
-/* Real-world Interactive Privacy Overlay */
-.arena-media-frame {
-    position: relative; /* Anchor for our precise blur block */
+/* ==========================================
+   10. ANALYTICS DATA HISTORIES
+   ========================================== */
+.history-log-card {
+    background-color: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 0.2s, border-color 0.2s;
+}
+.history-log-card:hover {
+    transform: translateY(-2px);
+    border-color: #3b82f6;
 }
 
-/* The localized censor box */
-.privacy-blur-box {
-    position: absolute;
-    top: 15%;      /* Defaults near where a human head sits in portrait layouts */
-    left: 30%;
-    width: 90px;   /* Perfectly scaled face mask size */
-    height: 90px;
-    border-radius: 50%; /* Rounded face profile shape */
-    backdrop-filter: blur(20px) grayscale(50%); /* Blurs ONLY what sits directly beneath it */
-    -webkit-backdrop-filter: blur(20px) grayscale(50%);
-    border: 2px dashed #ef4444;
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(0,0,0,0.5);
-    z-index: 40;
-    pointer-events: auto;
-    cursor: move; /* Indicates to reviewers/creators it represents an interactive block */
+.log-meta-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1f2937;
+    padding-bottom: 8px;
 }
 
-/* Small label identifier tag attached to the box */
-.privacy-blur-box::before {
-    content: "🔒 Mask Active";
-    position: absolute;
-    top: -22px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #ef4444;
-    color: #fff;
-    font-size: 10px;
+.log-handle-tag {
+    font-size: 0.85rem;
     font-weight: bold;
-    padding: 2px 6px;
+    color: #f8fafc;
+}
+
+.log-platform-pill {
+    font-size: 0.75rem;
+    background-color: #1f2937;
+    padding: 2px 8px;
     border-radius: 4px;
-    white-space: nowrap;
+    font-weight: 600;
+}
+
+.log-metric-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.log-bar-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #cbd5e1;
+}
+
+.log-notes-quote {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-style: italic;
+    background-color: rgba(15, 23, 42, 0.4);
+    padding: 8px 12px;
+    border-left: 2px solid #3b82f6;
+    border-radius: 0 4px 4px 0;
+    margin: 4px 0 0 0;
+}
+
+/* ==========================================
+   11. RESPONSIVE COLLAPSE RULES
+   ========================================== */
+@media (max-width: 900px) {
+    .builder-container, .arena-workspace {
+        flex-direction: column;
+        align-items: center;
+    }
+    .left-panel, .critique-card {
+        max-height: none;
+        overflow-y: visible;
+        width: 100%;
+    }
+    .right-panel, .critique-scorecard {
+        position: relative;
+        top: 0;
+        width: 100%;
+    }
+}
+
+/* ==========================================
+   12. A/B TESTING STATE UTILITIES (RESTORED)
+   ========================================== */
+
+/* This rule forces the A/B sub-tabs to hide/show when toggled in JS */
+.hidden { 
+    display: none !important; 
+}
+
+/* Visually indicates which mode is selected */
+.mode-btn { 
+    transition: background-color 0.2s, color 0.2s; 
+}
+.mode-btn:hover { 
+    color: #f8fafc; 
+}
+.mode-btn.active { 
+    background-color: #3b82f6 !important; 
+    color: #ffffff !important; 
+}
+
+/* Visually indicates which variant (A or B) you are editing */
+.variant-tab { 
+    transition: background-color 0.2s, color 0.2s; 
+    border: 1px solid transparent;
+}
+.variant-tab.active { 
+    background-color: rgba(59, 130, 246, 0.15) !important; 
+    color: #3b82f6 !important; 
+    border: 1px solid rgba(59, 130, 246, 0.4) !important; 
+}
+
+/* ==========================================
+   13. COMMUNITY A/B DUAL PREVIEW GRID
+   ========================================== */
+.ab-split-preview-grid {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Let the columns expand fully inside the grid container */
+.ab-split-preview-grid .variant-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Styled wide action buttons */
+.btn-vote {
+    background-color: #1e293b;
+    color: #94a3b8;
+    border: 1px solid #334155;
+    font-size: 0.9rem;
+}
+
+.btn-vote:hover {
+    background-color: #334155;
+    color: #f8fafc;
+}
+
+.btn-vote.selected {
+    background-color: #10b981 !important;
+    color: white !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
 }
