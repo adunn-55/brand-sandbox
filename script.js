@@ -1,413 +1,963 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creator.io - Workspace Suite</title>
-    <!-- Link to your external stylesheet -->
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+// ==========================================
+// 1. GLOBAL ELEMENT SELECTORS & A/B STATE
+// ==========================================
+// Main View Switchers
+const navSandbox = document.getElementById('nav-sandbox');
+const navCommunity = document.getElementById('nav-community');
+const sandboxView = document.getElementById('sandbox-view');
+const communityView = document.getElementById('community-view');
+const homeView = document.getElementById('home-view'); // FIXED: Was missing!
 
-    <!-- GLOBAL TOP NAVIGATION BAR -->
-    <header class="global-navbar" style="width: 100%; background-color: #111827; border-bottom: 1px solid #1f2937; padding: 15px 30px; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100;">
-        <div class="nav-brand" style="display: flex; align-items: center; gap: 10px; cursor: pointer;" id="brand-home-logo">
-            <span style="font-size: 1.4rem;">🚀</span>
-            <span style="font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; color: #f8fafc;">CREATOR.IO</span>
-        </div>
-        <nav class="nav-links" style="display: flex; gap: 10px;">
-            <button class="nav-link-btn active" id="nav-home">Home</button>
-            <button class="nav-link-btn" id="nav-sandbox-header">Sandbox</button>
-            <button class="nav-link-btn" id="nav-community-header">Focus Group</button>
-            <button class="nav-link-btn" id="nav-library-header">Library</button>
-        </nav>
-    </header>
+// Brand Asset Library View selectors
+const libraryView = document.getElementById('library-view');
+const btnNavHome = document.getElementById('nav-home');
+const btnNavSandboxHeader = document.getElementById('nav-sandbox-header');
+const btnNavCommunityHeader = document.getElementById('nav-community-header');
+const btnNavLibraryHeader = document.getElementById('nav-library-header');
+const brandHomeLogo = document.getElementById('brand-home-logo');
+const navHomeFromLibBtn = document.getElementById('nav-home-from-lib');
+const launchLibraryBtn = document.getElementById('launch-library-btn');
 
-    <!-- Main Container Wrapper to anchor our viewport heights -->
-    <div class="app-container">
+// Library Management View elements
+const libraryImageUploader = document.getElementById('library-image-uploader');
+const libTextTitle = document.getElementById('lib-text-title');
+const libTextBody = document.getElementById('lib-text-body');
+const saveTextAssetBtn = document.getElementById('save-text-asset-btn');
+const libTabImages = document.getElementById('lib-tab-images');
+const libTabTexts = document.getElementById('lib-tab-texts');
+const libImagesGrid = document.getElementById('lib-images-grid');
+const libTextsList = document.getElementById('lib-texts-list');
+const countLibImgs = document.getElementById('count-lib-imgs');
+const countLibTexts = document.getElementById('count-lib-texts');
 
-        <!-- ==========================================
-             HOME LAUNCHPAD VIEW
-             ========================================== -->
-        <div id="home-view" class="app-view">
-            <!-- Welcome Hero Section -->
-            <div class="home-hero" style="width: 100%; background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border: 1px solid #1f2937; border-radius: 16px; padding: 40px; box-sizing: border-box; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; overflow: hidden; margin-top: 20px;">
-                <div style="position: relative; z-index: 2; max-width: 600px;">
-                    <span style="background-color: #3b82f6; color: white; font-size: 0.75rem; font-weight: bold; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">SaaS Platform v1.5</span>
-                    <h1 style="font-size: 2.2rem; margin: 15px 0 10px 0; font-weight: 800; color: #f8fafc;">Optimized Content Awaits.</h1>
-                    <p style="color: #94a3b8; font-size: 1.05rem; line-height: 1.5; margin-bottom: 25px;">A unified workspace to draft, edit, split-test, and dynamically review your creative assets before they go live.</p>
+// Sandbox Quick-Drawer elements
+const toggleSandboxDrawerBtn = document.getElementById('toggle-sandbox-drawer-btn');
+const sandboxQuickDrawer = document.getElementById('sandbox-quick-drawer');
+const sandboxDrawerImages = document.getElementById('sandbox-drawer-images');
+const sandboxDrawerTexts = document.getElementById('sandbox-drawer-texts');
+
+// Interactive Launch Cards on Homepage
+const launchSandboxBtn = document.getElementById('launch-sandbox-btn');
+const launchCommunityBtn = document.getElementById('launch-community-btn');
+
+// Builder UI inputs
+const postInput = document.getElementById('post-text');
+const previewText = document.getElementById('preview-text');
+const hideIdentityCheckbox = document.getElementById('hide-identity');
+const previewHandle = document.getElementById('preview-handle');
+const tabButtons = document.querySelectorAll('.tab-btn');
+const mockPhone = document.querySelector('.mock-phone');
+const charCountDisplay = document.getElementById('char-count');
+const charLimitDisplay = document.getElementById('char-limit');
+
+// A/B Mode UI elements
+const modeBtnContainer = document.getElementById('mode-switcher');
+const modeButtons = document.querySelectorAll('.mode-btn');
+const variantTabsContainer = document.getElementById('ab-variant-tabs');
+const variantTabs = document.querySelectorAll('.variant-tab');
+
+// Media upload elements
+const mediaUploader = document.getElementById('media-uploader');
+const sortContainer = document.getElementById('sort-container');
+const mediaPreviewWrapper = document.getElementById('media-preview-wrapper');
+const mediaPlaceholder = document.getElementById('media-placeholder');
+
+// Slide controls
+const prevSlideBtn = document.getElementById('prev-slide-btn');
+const nextSlideBtn = document.getElementById('next-slide-btn');
+
+// Critique Scorecard Elements
+const sliderHook = document.getElementById('slider-hook');
+const sliderFlow = document.getElementById('slider-flow');
+const sliderValue = document.getElementById('slider-value');
+const valHook = document.getElementById('val-hook');
+const valFlow = document.getElementById('val-flow');
+const valValue = document.getElementById('val-value');
+const reviewerNotes = document.getElementById('reviewer-notes');
+const submitBtn = document.getElementById('submit-critique-btn');
+
+// --- Platform Configuration ---
+const platformSettings = {
+    instagram: { limit: 2200, styleClass: 'instagram-mode', placeholder: '@Anon_Creator' },
+    twitter: { limit: 280, styleClass: 'twitter-mode', placeholder: '@Anon_X_User' },
+    tiktok: { limit: 2200, styleClass: 'tiktok-mode', placeholder: '@Anon_TikToker' }
+};
+
+// ==========================================
+// 2. STATE TRACKING DATABASE
+// ==========================================
+let builderMode = 'single'; // 'single' or 'abtest'
+let activeEditingVariant = 'A'; // 'A' or 'B'
+
+let abPostState = {
+    A: { caption: "", platform: 'instagram', images: [], censored: false },
+    B: { caption: "", platform: 'instagram', images: [], censored: false }
+};
+
+let currentPlatform = 'instagram';
+let uploadedImages = []; 
+
+let brandLibrary = {
+    images: JSON.parse(localStorage.getItem('brand_lib_images')) || [],
+    texts: JSON.parse(localStorage.getItem('brand_lib_texts')) || []
+};
+
+let activeLibraryTab = 'images'; 
+
+// ==========================================
+// 3. SYNCHRONIZATION & RENDERING ENGINES
+// ==========================================
+
+function saveCurrentEditorToState() {
+    if (!postInput) return;
+    abPostState[activeEditingVariant].caption = postInput.value;
+    abPostState[activeEditingVariant].platform = currentPlatform;
+    abPostState[activeEditingVariant].images = [...uploadedImages];
+    if (hideIdentityCheckbox) {
+        abPostState[activeEditingVariant].censored = hideIdentityCheckbox.checked;
+    }
+}
+
+function loadVariantToEditor(variant) {
+    activeEditingVariant = variant;
+    const data = abPostState[variant];
+
+    currentPlatform = data.platform;
+    uploadedImages = [...data.images];
+    
+    if (hideIdentityCheckbox) {
+        hideIdentityCheckbox.checked = data.censored;
+    }
+
+    if (tabButtons) {
+        tabButtons.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-platform') === currentPlatform) {
+                btn.classList.add('active');
+            }
+        });
+    }
+
+    if (postInput) postInput.value = data.caption;
+    if (charLimitDisplay) charLimitDisplay.innerText = platformSettings[currentPlatform].limit;
+
+    updateTextAndCounter();
+    renderMediaEngine();
+}
+
+function updateTextAndCounter() {
+    if (!postInput || !charCountDisplay) return;
+    const text = postInput.value;
+    charCountDisplay.innerText = text.length;
+
+    const limit = platformSettings[currentPlatform].limit;
+    if (text.length > limit) {
+        charCountDisplay.style.color = '#ef4444';
+    } else {
+        charCountDisplay.style.color = '#64748b';
+    }
+
+    if (previewText) {
+        if (text.trim() !== "") {
+            previewText.innerText = text;
+        } else {
+            previewText.innerText = "Your live caption preview will show up right here as you type...";
+        }
+    }
+
+    if (previewHandle) {
+        if (hideIdentityCheckbox && hideIdentityCheckbox.checked) {
+            previewHandle.innerText = "@Anonymous_Reviewee";
+        } else {
+            previewHandle.innerText = platformSettings[currentPlatform].placeholder + "_42";
+        }
+    }
+
+    runPreFlightAudits();
+}
+
+function renderMediaEngine() {
+    if (!sortContainer) return;
+    sortContainer.innerHTML = '';
+    
+    uploadedImages.forEach((imgSrc, index) => {
+        const thumb = document.createElement('div');
+        thumb.style.cssText = `
+            width: 50px; height: 50px; border-radius: 6px; overflow: hidden; position: relative;
+            background: url(${imgSrc}) center/cover; border: 2px solid #334155; cursor: grab;
+        `;
+        thumb.setAttribute('draggable', 'true');
+        thumb.dataset.index = index;
+
+        const deleteBadge = document.createElement('span');
+        deleteBadge.innerText = '×';
+        deleteBadge.style.cssText = `
+            position: absolute; top: 0; right: 0; background: rgba(239, 68, 68, 0.9);
+            color: white; width: 16px; height: 16px; font-size: 12px; line-height: 14px;
+            text-align: center; border-radius: 0 0 0 4px; cursor: pointer; font-weight: bold;
+        `;
+        deleteBadge.addEventListener('click', (e) => {
+            e.stopPropagation();
+            uploadedImages.splice(index, 1);
+            saveCurrentEditorToState();
+            renderMediaEngine();
+        });
+
+        thumb.appendChild(deleteBadge);
+        
+        thumb.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', index));
+        thumb.addEventListener('dragover', (e) => e.preventDefault());
+        thumb.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const fromIndex = e.dataTransfer.getData('text/plain');
+            const toIndex = index;
+            const movedItem = uploadedImages.splice(fromIndex, 1)[0];
+            uploadedImages.splice(toIndex, 0, movedItem);
+            saveCurrentEditorToState();
+            renderMediaEngine();
+        });
+
+        sortContainer.appendChild(thumb);
+    });
+
+    if (!mediaPreviewWrapper || !mediaPlaceholder) return;
+
+    if (uploadedImages.length > 0) {
+        mediaPlaceholder.style.display = 'none';
+        
+        if (currentPlatform === 'instagram') {
+            mediaPreviewWrapper.innerHTML = `
+                <div class="carousel-track" style="display: flex; transition: transform 0.3s ease; width: 100%; height: 100%;">
+                    ${uploadedImages.map(img => `<div class="carousel-item" style="min-width: 100%; height: 100%; background: url(${img}) center/cover no-repeat;"></div>`).join('')}
                 </div>
-                <!-- Dynamic Quick Stats Widget -->
-                <div class="quick-stats-widget" style="display: flex; gap: 20px; margin-top: 20px; border-top: 1px solid #1f2937; padding-top: 25px; z-index: 2; position: relative;">
-                    <div>
-                        <span style="display: block; font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase;">A/B Tests Active</span>
-                        <strong style="font-size: 1.5rem; color: #3b82f6;" id="home-stat-ab">Ready</strong>
-                    </div>
-                    <div style="border-left: 1px solid #1f2937; padding-left: 20px;">
-                        <span style="display: block; font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Total Audits Run</span>
-                        <strong style="font-size: 1.5rem; color: #10b981;" id="home-stat-audits">0</strong>
-                    </div>
-                </div>
-            </div>
+            `;
+            if (prevSlideBtn && nextSlideBtn) {
+                if (uploadedImages.length > 1) {
+                    prevSlideBtn.style.display = 'flex';
+                    nextSlideBtn.style.display = 'flex';
+                } else {
+                    prevSlideBtn.style.display = 'none';
+                    nextSlideBtn.style.display = 'none';
+                }
+            }
+        } else if (currentPlatform === 'twitter') {
+            if (prevSlideBtn && nextSlideBtn) {
+                prevSlideBtn.style.display = 'none';
+                nextSlideBtn.style.display = 'none';
+            }
+            
+            let gridClass = 'grid-single';
+            if (uploadedImages.length === 2) gridClass = 'grid-double';
+            if (uploadedImages.length === 3) gridClass = 'grid-triple';
+            if (uploadedImages.length >= 4) gridClass = 'grid-quad';
 
-            <!-- Launcher Grid -->
-            <h3 style="margin: 0 0 15px 0; color: #cbd5e1; font-size: 1.1rem; font-weight: bold; width: 100%;">⚡ Core Modules & Applications</h3>
-            <div class="home-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; width: 100%; box-sizing: border-box; margin-bottom: 40px;">
+            mediaPreviewWrapper.innerHTML = `
+                <div class="image-grid ${gridClass}" style="display: grid; gap: 4px; width: 100%; height: 100%;">
+                    ${uploadedImages.slice(0, 4).map(img => `<div class="grid-item" style="background: url(${img}) center/cover no-repeat; width: 100%; height: 100%;"></div>`).join('')}
+                </div>
+            `;
+        } else if (currentPlatform === 'tiktok') {
+            if (prevSlideBtn && nextSlideBtn) {
+                prevSlideBtn.style.display = 'none';
+                nextSlideBtn.style.display = 'none';
+            }
+            mediaPreviewWrapper.innerHTML = `
+                <div class="carousel-track" style="width: 100%; height: 100%;">
+                    <div class="carousel-item" style="width: 100%; height: 100%; background: url(${uploadedImages[0]}) center/cover no-repeat;"></div>
+                </div>
+            `;
+        }
+    } else {
+        mediaPreviewWrapper.innerHTML = '';
+        mediaPreviewWrapper.appendChild(mediaPlaceholder);
+        mediaPlaceholder.style.display = 'block';
+        if (prevSlideBtn && nextSlideBtn) {
+            prevSlideBtn.style.display = 'none';
+            nextSlideBtn.style.display = 'none';
+        }
+    }
+}
+
+function runPreFlightAudits() {
+    const lengthAudit = document.getElementById('audit-length');
+    const linkAudit = document.getElementById('audit-links');
+    const mediaAudit = document.getElementById('audit-media');
+    if (!lengthAudit || !linkAudit || !mediaAudit || !postInput) return;
+
+    const text = postInput.value;
+
+    const limit = platformSettings[currentPlatform].limit;
+    if (text.length <= limit) {
+        lengthAudit.innerText = `✓ Length complies with ${currentPlatform.charAt(0).toUpperCase() + currentPlatform.slice(1)} criteria`;
+        lengthAudit.className = 'audit-item audit-pass';
+    } else {
+        lengthAudit.innerText = `✗ Out of limits! Drop ${text.length - limit} characters`;
+        lengthAudit.className = 'audit-item audit-fail';
+    }
+
+    const hashtags = (text.match(/#/g) || []).length;
+    if (hashtags <= 3) {
+        linkAudit.innerText = `✓ Hashtags are optimized (${hashtags}/3)`;
+        linkAudit.className = 'audit-item audit-pass';
+    } else {
+        linkAudit.innerText = `⚠ Hashtag stuffing alert! Keep under 3 (${hashtags} found)`;
+        linkAudit.className = 'audit-item audit-fail';
+    }
+
+    if (uploadedImages.length > 0) {
+        mediaAudit.innerText = `✓ Rich media formatting validated (${uploadedImages.length}/4 items)`;
+        mediaAudit.className = 'audit-item audit-pass';
+    } else {
+        mediaAudit.innerText = `⚠ Text-only draft structure active`;
+        mediaAudit.className = 'audit-item audit-warn';
+    }
+}
+
+// ==========================================
+// BRAND ASSET MANAGEMENT & LOCALSTORAGE ENGINE
+// ==========================================
+
+function updateBrandLibraryStorage() {
+    localStorage.setItem('brand_lib_images', JSON.stringify(brandLibrary.images));
+    localStorage.setItem('brand_lib_texts', JSON.stringify(brandLibrary.texts));
+    renderBrandLibraryView();
+    renderSandboxQuickDrawer();
+}
+
+function renderBrandLibraryView() {
+    if (countLibImgs) countLibImgs.innerText = brandLibrary.images.length;
+    if (countLibTexts) countLibTexts.innerText = brandLibrary.texts.length;
+    if (!libImagesGrid || !libTextsList) return;
+
+    libImagesGrid.innerHTML = '';
+    libTextsList.innerHTML = '';
+
+    if (activeLibraryTab === 'images') {
+        libImagesGrid.classList.remove('hidden');
+        libTextsList.classList.add('hidden');
+
+        if (brandLibrary.images.length === 0) {
+            libImagesGrid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:#475569; padding:20px;">No brand graphics saved yet.</div>`;
+        } else {
+            brandLibrary.images.forEach((img, index) => {
+                const imgCard = document.createElement('div');
+                imgCard.style.cssText = `
+                    border-radius: 8px; border: 1px solid #1e293b; overflow: hidden; position: relative; aspect-ratio: 1/1;
+                    background: url(${img}) center/cover no-repeat; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+                `;
                 
-                <!-- Card 1: Creator Sandbox (Interactive) -->
-                <div class="launch-card interactive" id="launch-sandbox-btn">
-                    <div class="card-icon">📱</div>
-                    <h4>Creator Sandbox</h4>
-                    <p>Draft, drag-and-sort carousel mockups, and run automated pre-flight copy checks in a distraction-free mobile workspace.</p>
-                    <span class="launch-badge">Launch Application →</span>
-                </div>
+                const delBtn = document.createElement('button');
+                delBtn.innerText = '🗑️';
+                delBtn.style.cssText = `
+                    position: absolute; top: 4px; right: 4px; border: none; background: rgba(239, 68, 68, 0.9);
+                    color: white; font-size: 0.75rem; border-radius: 4px; cursor: pointer; padding: 4px;
+                `;
+                delBtn.addEventListener('click', () => {
+                    brandLibrary.images.splice(index, 1);
+                    updateBrandLibraryStorage();
+                });
 
-                <!-- Card 2: Focus Group (Interactive) -->
-                <div class="launch-card interactive" id="launch-community-btn">
-                    <div class="card-icon">👥</div>
-                    <h4>Community Focus Group</h4>
-                    <p>Enter the collaborative staging arena. Direct-vote on A/B tests, adjust performance sliders, and log qualitative peer notes.</p>
-                    <span class="launch-badge" style="color: #10b981;">Launch Arena →</span>
-                </div>
+                imgCard.appendChild(delBtn);
+                libImagesGrid.appendChild(imgCard);
+            });
+        }
+    } else {
+        libImagesGrid.classList.add('hidden');
+        libTextsList.classList.remove('hidden');
 
-                <!-- Card 3: Media Library & Templates (Interactive) -->
-                <div class="launch-card interactive" id="launch-library-btn">
-                    <div class="card-icon">📁</div>
-                    <h4>Media Library & Templates</h4>
-                    <p>Store your verified graphics, raw video templates, and approved brand assets for instant sandbox imports.</p>
-                    <span class="launch-badge" style="color: #3b82f6;">Manage Assets →</span>
-                </div>
-
-                <!-- Card 4: Historical Analytics (Locked Placeholder) -->
-                <div class="launch-card locked">
-                    <div class="card-icon">📊</div>
-                    <h4>Global Trend Reports</h4>
-                    <p>Unlock compiled performance graphs, cohort retention reviews, and calculated ROI forecasts for live postings.</p>
-                    <span class="lock-badge">🔒 Locked (Coming Soon)</span>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- ==========================================
-             CREATOR SANDBOX VIEW
-             ========================================== -->
-        <div id="sandbox-view" class="app-view hidden">
-            <div class="builder-container">
+        if (brandLibrary.texts.length === 0) {
+            libTextsList.innerHTML = `<div style="text-align:center; color:#475569; padding:20px;">No copy templates saved yet.</div>`;
+        } else {
+            brandLibrary.texts.forEach((text, index) => {
+                const textCard = document.createElement('div');
+                textCard.style.cssText = `
+                    background-color: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 15px; display: flex;
+                    flex-direction: column; gap: 8px; position: relative;
+                `;
                 
-                <!-- Left Panel: Content Controls -->
-                <div class="left-panel">
-                    <h2>📱 Creator Sandbox</h2>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Draft, format, and audit your social copy before pushing to live audiences.</p>
-
-                    <!-- A/B Testing Switcher -->
-                    <div class="draft-mode-container" style="margin-bottom: 25px; background-color: #0f172a; padding: 15px; border-radius: 10px; border: 1px solid #1e293b;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <label style="color: #cbd5e1; font-weight: 600; font-size: 0.9rem;">🛠️ Builder Mode</label>
-                            <div class="mode-pills" id="mode-switcher" style="display: flex; gap: 5px; background-color: #1e293b; padding: 3px; border-radius: 20px;">
-                                <button class="mode-btn active" data-mode="single" style="border:none; padding: 5px 12px; border-radius: 17px; background: transparent; color: #64748b; font-size: 0.75rem; font-weight: 600; cursor:pointer;">Standard</button>
-                                <button class="mode-btn" data-mode="abtest" style="border:none; padding: 5px 12px; border-radius: 17px; background: transparent; color: #64748b; font-size: 0.75rem; font-weight: 600; cursor:pointer;">A/B Split-Test</button>
-                            </div>
-                        </div>
-
-                        <!-- Hidden variant editing tabs -->
-                        <div id="ab-variant-tabs" class="hidden" style="margin-top: 10px; border-top: 1px solid #334155; padding-top: 10px;">
-                            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                                <button class="variant-tab active" data-variant="A" style="flex:1; border:none; padding: 10px; border-radius: 6px; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; font-weight: bold; cursor:pointer;">Editing Variant A</button>
-                                <button class="variant-tab" data-variant="B" style="flex:1; border:none; padding: 10px; border-radius: 6px; background-color: #1e293b; color: #94a3b8; font-weight: bold; cursor:pointer;">Editing Variant B</button>
-                            </div>
-                            <div style="text-align: center; color: #64748b; font-size: 0.8rem; font-style: italic;">Change any setting below (text, image, platform) for your chosen variant.</div>
-                        </div>
+                textCard.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="color: #cbd5e1; font-size: 0.9rem;">${text.title}</strong>
+                        <button class="delete-text-btn" data-index="${index}" style="border:none; background:transparent; color:#ef4444; font-size: 0.8rem; cursor:pointer;">Remove</button>
                     </div>
+                    <p style="margin:0; font-size:0.8rem; color:#64748b; font-family: monospace; line-height: 1.4; white-space: pre-wrap;">${text.body}</p>
+                `;
 
-                    <!-- Platform Selector Tabs -->
-                    <div class="platform-selector" style="margin-bottom: 20px;">
-                        <label style="color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 8px; font-size: 0.9rem;">Target Feed</label>
-                        <div class="tab-btn-group">
-                            <button class="tab-btn active" data-platform="instagram">Instagram</button>
-                            <button class="tab-btn" data-platform="twitter">X / Twitter</button>
-                            <button class="tab-btn" data-platform="tiktok">TikTok</button>
-                        </div>
-                    </div>
+                textCard.querySelector('.delete-text-btn').addEventListener('click', () => {
+                    brandLibrary.texts.splice(index, 1);
+                    updateBrandLibraryStorage();
+                });
 
-                    <!-- Caption Copy Textarea with Asset Quick Import Drawer -->
-                    <div class="input-group" style="margin-bottom: 20px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <label for="post-text" style="color: #cbd5e1; font-weight: 600; margin: 0; font-size: 0.9rem;">Caption Copy</label>
-                            <button id="toggle-sandbox-drawer-btn" style="background: none; border: none; color: #3b82f6; font-size: 0.8rem; font-weight: bold; cursor: pointer; text-decoration: underline;">⚡ Quick Import Library</button>
-                        </div>
-                        
-                        <!-- Sliding Sandbox Asset Panel (Starts hidden) -->
-                        <div id="sandbox-quick-drawer" class="hidden" style="background-color: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #1e293b; margin-bottom: 12px;">
-                            <span style="font-size: 0.75rem; color: #64748b; font-weight: bold; display: block; margin-bottom: 8px; text-transform: uppercase;">Import Saved Asset:</span>
-                            <div id="sandbox-drawer-images" style="display: flex; gap: 8px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 5px;"></div>
-                            <div id="sandbox-drawer-texts" style="display: flex; flex-direction: column; gap: 6px;"></div>
-                        </div>
+                libTextsList.appendChild(textCard);
+            });
+        }
+    }
+}
 
-                        <textarea id="post-text" placeholder="Draft your content copy here..."></textarea>
-                        <div class="counter-badge">
-                            <span>Characters: <span id="char-count">0</span> / <span id="char-limit">2200</span></span>
-                        </div>
-                    </div>
+function renderSandboxQuickDrawer() {
+    if (!sandboxDrawerImages || !sandboxDrawerTexts) return;
+    sandboxDrawerImages.innerHTML = '';
+    sandboxDrawerTexts.innerHTML = '';
 
-                    <!-- Media Loader -->
-                    <div class="input-group" style="margin-bottom: 20px;">
-                        <label style="color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 8px; font-size: 0.9rem;">Attachments (Max 4 Images)</label>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="file" id="media-uploader" accept="image/*" multiple style="display: none;">
-                            <label class="btn-action" for="media-uploader" style="cursor: pointer; padding: 10px 16px; border-radius: 8px; background-color: #3b82f6; font-size: 0.85rem; font-weight: bold; color: white;">📸 Upload Assets</label>
-                            <span style="font-size: 0.8rem; color: #64748b;">Drag thumbnails to sort sequence.</span>
-                        </div>
-                        <!-- Drag Sort Sandbox Thumbnail Dock -->
-                        <div id="sort-container"></div>
-                    </div>
+    if (brandLibrary.images.length === 0) {
+        sandboxDrawerImages.innerHTML = `<span style="font-size:0.75rem; color:#475569;">No saved assets. Add them in Library!</span>`;
+    } else {
+        brandLibrary.images.forEach((imgSrc) => {
+            const thumb = document.createElement('div');
+            thumb.style.cssText = `
+                width: 40px; height: 40px; border-radius: 4px; overflow: hidden; flex-shrink: 0;
+                background: url(${imgSrc}) center/cover; border: 1px solid #334155; cursor: pointer; transition: transform 0.1s;
+            `;
+            thumb.title = "Inject into Workspace Preview";
+            thumb.addEventListener('click', () => {
+                if (uploadedImages.length >= 4) {
+                    alert("⚠️ Canvas maxes out at 4 media elements! Remove one first.");
+                    return;
+                }
+                uploadedImages.push(imgSrc);
+                saveCurrentEditorToState();
+                renderMediaEngine();
+            });
+            thumb.addEventListener('mouseenter', () => thumb.style.transform = "scale(1.1)");
+            thumb.addEventListener('mouseleave', () => thumb.style.transform = "scale(1)");
+            sandboxDrawerImages.appendChild(thumb);
+        });
+    }
 
-                    <!-- Privacy Configurations -->
-                    <div class="input-group" style="margin-bottom: 20px; background-color: #1e293b; padding: 12px; border-radius: 8px; border: 1px solid #334155;">
-                        <label style="display: flex; align-items: center; gap: 10px; color: #cbd5e1; font-size: 0.9rem; cursor: pointer;">
-                            <input type="checkbox" id="hide-identity">
-                            <span>🔒 Hide my face & identity (Censors profile metadata & activates localized blur mask)</span>
-                        </label>
-                    </div>
+    if (brandLibrary.texts.length === 0) {
+        sandboxDrawerTexts.innerHTML = `<span style="font-size:0.75rem; color:#475569;">No saved templates.</span>`;
+    } else {
+        brandLibrary.texts.forEach((txt) => {
+            const pill = document.createElement('button');
+            pill.style.cssText = `
+                width: 100%; text-align: left; background-color: #1e293b; border: 1px solid #334155; color: #cbd5e1;
+                padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer;
+                display: flex; justify-content: space-between; align-items: center; transition: background-color 0.2s;
+            `;
+            pill.innerHTML = `<span>⚡ ${txt.title}</span> <span style="font-size: 0.65rem; color:#475569;">Insert →</span>`;
+            
+            pill.addEventListener('click', () => {
+                const currentText = postInput.value;
+                postInput.value = currentText + (currentText.trim() === "" ? "" : "\n\n") + txt.body;
+                updateTextAndCounter();
+                saveCurrentEditorToState();
+            });
 
-                    <!-- Automated Quality Audits -->
-                    <div class="audit-board">
-                        <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: #f8fafc;">📋 Pre-Flight Copy Audit</h4>
-                        <div id="audit-length" class="audit-item audit-pass">✓ Length complies with Instagram criteria</div>
-                        <div id="audit-links" class="audit-item audit-pass">✓ Hashtag optimization looks clean (0/3)</div>
-                        <div id="audit-media" class="audit-item audit-pass">✓ Text-only post structure approved for Instagram</div>
-                    </div>
+            sandboxDrawerTexts.appendChild(pill);
+        });
+    }
+}
 
-                    <!-- Trigger Button to Switch to Community View -->
-                    <button id="nav-community" class="btn-action" style="width: 100%; padding: 14px; font-size: 1rem; background-color: #10b981;">Go to Community Focus Group →</button>
-                </div>
+// ==========================================
+// 4. CORE BUILDER EVENTS & BINDINGS
+// ==========================================
 
-                <!-- Right Panel: The Sticky Mock Phone Preview Frame -->
-                <div class="right-panel">
-                    <div class="mock-phone instagram-mode">
-                        <div class="phone-header">
-                            <span class="phone-time">9:41</span>
-                            <div class="phone-notch"></div>
-                            <div class="phone-signals">📶 🔋</div>
-                        </div>
-                        
-                        <div class="phone-scroll-area">
-                            <div class="preview-card">
-                                <div class="preview-meta">
-                                    <div class="avatar-placeholder">👤</div>
-                                    <div class="meta-names">
-                                        <span class="profile-name" id="preview-handle">@YourRealBrand</span>
-                                        <span class="profile-sub">Sponsored</span>
-                                    </div>
-                                </div>
+if (postInput) {
+    postInput.addEventListener('input', () => {
+        updateTextAndCounter();
+        saveCurrentEditorToState();
+    });
+}
 
-                                <!-- Main Screen Media Frame -->
-                                <div class="media-preview-container">
-                                    <div id="media-preview-wrapper" class="media-preview-wrapper">
-                                        <div id="media-placeholder" class="frame-placeholder" style="padding: 60px 20px; text-align: center; color: #475569;">
-                                            [ Preview Media Attached Here ]
-                                        </div>
-                                    </div>
-                                    <!-- Carousel Navigation arrows -->
-                                    <button id="prev-slide-btn" class="nav-arrow prev-arrow" style="display: none;">‹</button>
-                                    <button id="next-slide-btn" class="nav-arrow next-arrow" style="display: none;">›</button>
-                                </div>
+if (hideIdentityCheckbox) {
+    hideIdentityCheckbox.addEventListener('change', () => {
+        updateTextAndCounter();
+        saveCurrentEditorToState();
+    });
+}
 
-                                <div class="preview-caption">
-                                    <p id="preview-text">Your live caption preview will show up right here as you type...</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+if (tabButtons) {
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            currentPlatform = this.getAttribute('data-platform');
+            
+            if (mockPhone) {
+                mockPhone.className = 'mock-phone ' + platformSettings[currentPlatform].styleClass;
+            }
+            if (charLimitDisplay) {
+                charLimitDisplay.innerText = platformSettings[currentPlatform].limit;
+            }
+            
+            updateTextAndCounter();
+            renderMediaEngine();
+            saveCurrentEditorToState();
+        });
+    });
+}
 
+if (mediaUploader) {
+    mediaUploader.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        const availableSlots = 4 - uploadedImages.length;
+        
+        files.slice(0, availableSlots).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                uploadedImages.push(event.target.result);
+                saveCurrentEditorToState();
+                renderMediaEngine();
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+}
+
+if (prevSlideBtn && nextSlideBtn) {
+    prevSlideBtn.addEventListener('click', () => {
+        const track = mediaPreviewWrapper.querySelector('.carousel-track');
+        if (track) track.scrollBy({ left: -track.offsetWidth, behavior: 'smooth' });
+    });
+    nextSlideBtn.addEventListener('click', () => {
+        const track = mediaPreviewWrapper.querySelector('.carousel-track');
+        if (track) track.scrollBy({ left: track.offsetWidth, behavior: 'smooth' });
+    });
+}
+
+if (modeBtnContainer) {
+    modeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            modeButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            builderMode = this.getAttribute('data-mode');
+
+            if (builderMode === 'abtest') {
+                if (variantTabsContainer) variantTabsContainer.classList.remove('hidden');
+                if (variantTabs) {
+                    variantTabs.forEach(t => t.classList.remove('active'));
+                    variantTabs[0].classList.add('active');
+                }
+                loadVariantToEditor('A');
+            } else {
+                if (variantTabsContainer) variantTabsContainer.classList.add('hidden');
+                loadVariantToEditor('A'); 
+            }
+        });
+    });
+}
+
+if (variantTabsContainer) {
+    variantTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            if (builderMode !== 'abtest') return;
+            
+            saveCurrentEditorToState();
+
+            variantTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const variant = this.getAttribute('data-variant');
+            loadVariantToEditor(variant);
+        });
+    });
+}
+
+// ==========================================
+// 5. REVIEW QUEUE AND FEEDBACK CONTROLLER
+// ==========================================
+let critiqueQueue = [];
+let currentQueueIndex = 0;
+let analyticsDatabase = [];
+
+function initializeCritiqueQueue() {
+    critiqueQueue = [];
+
+    if (builderMode === 'abtest') {
+        const capA = abPostState.A.caption.trim() !== "" ? abPostState.A.caption : "No caption text drafted for Variant A.";
+        const capB = abPostState.B.caption.trim() !== "" ? abPostState.B.caption : "No caption text drafted for Variant B.";
+        
+        critiqueQueue.push({
+            isABTest: true,
+            selectedWinner: null,
+            platformBadge: `Target: A/B Split-Test Matchup`,
+            platformA: abPostState.A.platform,
+            platformB: abPostState.B.platform,
+            captionA: capA,
+            captionB: capB,
+            mediaHTML_A: abPostState.A.images.length > 0 ? buildPreviewHTML(abPostState.A.images, abPostState.A.platform) : `<span class="frame-placeholder">[ No Media Variant A ]</span>`,
+            mediaHTML_B: abPostState.B.images.length > 0 ? buildPreviewHTML(abPostState.B.images, abPostState.B.platform) : `<span class="frame-placeholder">[ No Media Variant B ]</span>`,
+            forceCensorA: abPostState.A.censored,
+            forceCensorB: abPostState.B.censored
+        });
+    } else {
+        const capA = abPostState.A.caption.trim() !== "" ? abPostState.A.caption : "No caption text drafted for this submission.";
+        const platA = abPostState.A.platform;
+        critiqueQueue.push({
+            isABTest: false,
+            handle: abPostState.A.censored ? "@Anonymous_Reviewee" : platformSettings[platA].placeholder + "_42",
+            platformBadge: `Target: ${platA.charAt(0).toUpperCase() + platA.slice(1)} Feed`,
+            platform: platA,
+            caption: capA,
+            mediaHTML: abPostState.A.images.length > 0 ? buildPreviewHTML(abPostState.A.images, platA) : `<span class="frame-placeholder">[ Reviewer Media Preview Window ]</span>`,
+            hasMedia: abPostState.A.images.length > 0,
+            forceCensor: abPostState.A.censored
+        });
+    }
+
+    critiqueQueue.push(
+        {
+            isABTest: false,
+            handle: "@Alpha_Growth_Lab",
+            platformBadge: "Target: X / Twitter Feed",
+            platform: "twitter",
+            caption: "Stop writing hooks like '3 tips to scale your brand'. It's dead. Instead, tell a story about a massive failure that cost you $10k, then drop the lesson in thread item 2. Thoughts on this thread framing? 👇",
+            mediaHTML: `<span class="frame-placeholder">[ Text-Only Thread Approved for X ]</span>`,
+            hasMedia: false,
+            forceCensor: false
+        },
+        {
+            isABTest: false,
+            handle: "@Design_Vibe_Co",
+            platformBadge: "Target: Instagram Feed",
+            platform: "instagram",
+            caption: "Testing out a high-contrast brutalist layout aesthetic for our Q3 digital asset carousel. Do the neon elements conflict with the background frame grid layout or pass readability checks?",
+            mediaHTML: `<div class="carousel-track" style="aspect-ratio: 1/1;"><div class="carousel-item" style="width:100%; height:100%; background:url('https://picsum.photos/600/600?random=1') center/cover no-repeat;"></div></div>`,
+            hasMedia: true,
+            forceCensor: false
+        }
+    );
+}
+
+function buildPreviewHTML(images, platform) {
+    if (platform === 'twitter') {
+        let gridClass = 'grid-single';
+        if (images.length === 2) gridClass = 'grid-double';
+        if (images.length === 3) gridClass = 'grid-triple';
+        if (images.length >= 4) gridClass = 'grid-quad';
+        return `
+            <div class="image-grid ${gridClass}" style="display: grid; gap: 4px; width: 100%; height: 100%;">
+                ${images.slice(0, 4).map(img => `<div class="grid-item" style="background: url(${img}) center/cover no-repeat; width:100%; height:100%;"></div>`).join('')}
             </div>
-        </div>
-
-        <!-- ==========================================
-             COMMUNITY FOCUS GROUP VIEW
-             ========================================== -->
-        <div id="community-view" class="app-view hidden">
-            <div class="community-arena">
-                
-                <!-- Arena Heading -->
-                <div class="arena-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 20px; margin-bottom: 20px;">
-                    <div>
-                        <h2 style="margin: 0; color: #f8fafc;">👥 Community Focus Group</h2>
-                        <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 0.9rem;">Provide an objective, structured critique based on performance metrics.</p>
-                    </div>
-                    <button id="nav-sandbox" class="btn-action" style="background-color: #475569;">← Back to Builder Workspace</button>
-                </div>
-
-                <!-- TWO-COLUMN CRITIQUE LAYOUT -->
-                <div class="arena-workspace">
-                    
-                    <!-- Column A: Dynamic Queue Post Display Card (Left Side) -->
-                    <div class="critique-card">
-                        <div class="card-meta">
-                            <div class="anon-profile">
-                                <div class="anon-avatar">👤</div>
-                                <div>
-                                    <strong id="anon-display-handle">Loading Queue...</strong>
-                                    <span class="target-badge" id="anon-platform-badge">Target: Initializing</span>
-                                </div>
-                            </div>
-                            <div class="status-pill">🔒 Identity Masked</div>
-                        </div>
-
-                        <div class="card-display-content">
-                            <div class="arena-text-wrapper" style="padding: 16px; background-color: #0f172a; border-radius: 8px; margin-bottom: 12px;">
-                                <div id="arena-text-delivery" class="arena-text"></div>
-                            </div>
-                            <div id="arena-media-frame" class="arena-media-frame"></div>
-                        </div>
-                    </div>
-
-                    <!-- Column B: Interactive Peer Scorecard Widget (Right Side) -->
-                    <div class="critique-scorecard">
-                        <h3>📊 Peer Scorecard</h3>
-                        <p class="scorecard-sub">Slide to rate each performance vector before submitting.</p>
-                        
-                        <!-- Metric 1: Hook Strength -->
-                        <div class="slider-group">
-                            <div class="slider-labels">
-                                <span class="metric-title">🪝 Hook Strength</span>
-                                <span class="metric-val" id="val-hook">50/100</span>
-                            </div>
-                            <input type="range" min="0" max="100" value="50" class="score-slider" id="slider-hook">
-                            <div class="slider-hints">
-                                <span>Scroll-Past</span>
-                                <span>Scroll-Stopper</span>
-                            </div>
-                        </div>
-
-                        <!-- Metric 2: Visual Flow & Pacing -->
-                        <div class="slider-group">
-                            <div class="slider-labels">
-                                <span class="metric-title">👁️ Visual Pacing</span>
-                                <span class="metric-val" id="val-flow">50/100</span>
-                            </div>
-                            <input type="range" min="0" max="100" value="50" class="score-slider" id="slider-flow">
-                            <div class="slider-hints">
-                                <span>Confusing/Cluttered</span>
-                                <span>Seamless Flow</span>
-                            </div>
-                        </div>
-
-                        <!-- Metric 3: Value & Engagement Call -->
-                        <div class="slider-group">
-                            <div class="slider-labels">
-                                <span class="metric-title">🔥 Engagement/Value</span>
-                                <span class="metric-val" id="val-value">50/100</span>
-                            </div>
-                            <input type="range" min="0" max="100" value="50" class="score-slider" id="slider-value">
-                            <div class="slider-hints">
-                                <span>Forgettable</span>
-                                <span>Saves & Shares</span>
-                            </div>
-                        </div>
-
-                        <!-- Reviewer Comments -->
-                        <div class="slider-group" style="margin-top: 20px;">
-                            <label class="metric-title" style="display:block; margin-bottom: 8px;">💬 Qualitative Notes</label>
-                            <textarea id="reviewer-notes" placeholder="What specific adjustment would make you stop and read this on your live timeline?"></textarea>
-                        </div>
-
-                        <button class="btn-action" id="submit-critique-btn" style="width: 100%; margin-top: 15px;">Submit Critique Draft</button>
-                    </div>
-
-                </div> <!-- Closing arena-workspace -->
-
-                <!-- SECTION 3: ANALYTICS HISTORY FEED -->
-                <div class="analytics-history-section" style="margin-top: 40px; border-top: 1px dashed #334155; padding-top: 30px;">
-                    <div class="analytics-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <div>
-                            <h3 style="margin: 0; color: #f8fafc; font-size: 1.3rem;">📈 Community Critique History Logs</h3>
-                            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.85rem;">Review rolling submission metrics and compiled audit score balances.</p>
-                        </div>
-                        <!-- Dynamic Badge Counters -->
-                        <div class="history-badge-group" style="display: flex; gap: 15px;">
-                            <span style="background-color: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold;">
-                                Total Audited: <span id="log-counter-total" style="color: #3b82f6;">0</span>
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Empty state placeholder -->
-                    <div id="history-empty-state" style="text-align: center; padding: 40px; background-color: #0f172a; border: 1px dashed #334155; border-radius: 12px; color: #475569; font-size: 0.9rem;">
-                        📭 No critiques submitted during this live workspace session yet.
-                    </div>
-
-                    <!-- Main dynamic log injection point grid container -->
-                    <div id="analytics-log-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; width: 100%;"></div>
-                </div>
-
+        `;
+    } else {
+        return `
+            <div class="carousel-track" style="display: flex; width: 100%; height: 100%;">
+                ${images.map(img => `<div class="carousel-item" style="min-width: 100%; height: 100%; background: url(${img}) center/cover no-repeat;"></div>`).join('')}
             </div>
-        </div>
+            <button id="prev-slide-btn" class="nav-arrow prev-arrow" style="${images.length > 1 ? 'display:flex' : 'display:none'}">‹</button>
+            <button id="next-slide-btn" class="nav-arrow next-arrow" style="${images.length > 1 ? 'display:flex' : 'display:none'}">›</button>
+        `;
+    }
+}
 
-        <!-- ==========================================
-             MEDIA LIBRARY & ASSET MANAGER VIEW
-             ========================================== -->
-        <div id="library-view" class="app-view hidden">
-            <!-- Header section -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 20px; margin-bottom: 25px; width: 100%; margin-top: 20px;">
-                <div>
-                    <h2 style="margin: 0; color: #f8fafc;">📁 Brand Asset Library</h2>
-                    <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 0.9rem;">Upload and save your standard creative elements for quick imports during testing.</p>
-                </div>
-                <button id="nav-home-from-lib" class="btn-action" style="background-color: #475569;">← Back to Home Dashboard</button>
-            </div>
+function loadActiveQueuePost() {
+    const activePost = critiqueQueue[currentQueueIndex];
+    if (!activePost) return;
+    
+    const anonTextDelivery = document.getElementById('arena-text-delivery');
+    const anonPlatformBadge = document.getElementById('anon-platform-badge');
+    const arenaMediaFrame = document.getElementById('arena-media-frame');
+    const anonAvatar = document.querySelector('.anon-avatar');
+    const anonDisplayHandle = document.getElementById('anon-display-handle');
 
-            <!-- Library Split Workspace -->
-            <div class="builder-container" style="gap: 30px; width: 100%;">
-                
-                <!-- Left Panel: Upload/Manage Inputs -->
-                <div class="left-panel" style="flex: 1; max-height: none; overflow-y: visible;">
-                    <h3 style="margin: 0 0 15px 0; font-size: 1.1rem; color: #cbd5e1;">📥 Add New Asset</h3>
-                    
-                    <!-- Media Asset Upload Form -->
-                    <div class="input-group" style="background-color: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #1e293b; margin-bottom: 20px;">
-                        <label style="color: #f8fafc; font-size: 0.85rem; display:block; margin-bottom: 10px;">Upload Image Asset (.png, .jpg)</label>
-                        <input type="file" id="library-image-uploader" accept="image/*" style="display: none;">
-                        <label class="btn-action" for="library-image-uploader" style="display: block; text-align: center; cursor: pointer; background-color: #1e293b; border: 1px dashed #3b82f6; padding: 15px;">
-                            📷 Click to Upload Graphic
-                        </label>
+    if (arenaMediaFrame) {
+        arenaMediaFrame.className = "arena-media-frame";
+        arenaMediaFrame.innerHTML = "";
+        arenaMediaFrame.style.aspectRatio = "auto";
+        arenaMediaFrame.style.maxWidth = "100%";
+        arenaMediaFrame.style.height = "auto";
+    }
+
+    if (activePost.isABTest) {
+        if (anonDisplayHandle) anonDisplayHandle.innerText = "A/B Split-Test Workspace";
+        if (anonPlatformBadge) anonPlatformBadge.innerText = activePost.platformBadge;
+        if (anonAvatar) {
+            anonAvatar.innerText = "⚖️";
+            anonAvatar.classList.remove('is-censored');
+        }
+
+        if (anonTextDelivery) anonTextDelivery.innerText = "Compare both draft variants below and cast your vote on the winning strategy.";
+
+        if (arenaMediaFrame) {
+            arenaMediaFrame.style.flexDirection = "column";
+            arenaMediaFrame.style.alignItems = "stretch";
+            arenaMediaFrame.style.justifyContent = "flex-start";
+
+            arenaMediaFrame.innerHTML = `
+                <div class="ab-split-preview-grid" style="width: 100%; display: flex; gap: 16px; padding: 15px; box-sizing: border-box;">
+                    <div class="variant-column" style="flex: 1; display: flex; flex-direction: column; background-color: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; box-sizing: border-box;">
+                        <span class="variant-label-tag" style="align-self: flex-start; background-color: #3b82f6; color: white; font-size: 0.7rem; font-weight: bold; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px;">Variant A (Instagram)</span>
+                        <p style="font-size: 0.8rem; line-height:1.4; color: #cbd5e1; margin: 0 0 12px 0; min-height: 38px;">${activePost.captionA}</p>
+                        <div class="variant-media-wrapper" style="width:100%; aspect-ratio:1/1; position:relative; overflow:hidden; border-radius:6px; background:#0f172a;">
+                            ${activePost.mediaHTML_A}
+                        </div>
                     </div>
-
-                    <!-- Text Template Form -->
-                    <div class="input-group" style="background-color: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #1e293b;">
-                        <label style="color: #f8fafc; font-size: 0.85rem; display:block; margin-bottom: 6px;">Save Copy/CTA Template</label>
-                        <input type="text" id="lib-text-title" placeholder="Template Label (e.g. Bio Link CTA)" style="width:100%; background:#1e293b; border:1px solid #334155; padding:8px; border-radius:6px; color:white; margin-bottom:10px; box-sizing:border-box;">
-                        <textarea id="lib-text-body" placeholder="Paste your recurring caption copy or hashtags here..." style="width:100%; height:80px; background:#1e293b; border:1px solid #334155; padding:8px; border-radius:6px; color:white; resize:none; box-sizing:border-box; font-family:inherit;"></textarea>
-                        <button class="btn-action" id="save-text-asset-btn" style="width: 100%; margin-top: 10px; background-color: #10b981;">💾 Save Text Snippet</button>
-                    </div>
-                </div>
-
-                <!-- Right Panel: Grid Inventory Display -->
-                <div class="critique-scorecard" style="flex: 1.5; background-color: #111827; border: 1px solid #1f2937;">
-                    <h3 style="color: #f8fafc; margin-bottom: 20px;">📦 Saved Repository</h3>
-                    
-                    <!-- Tab Toggle Inside Library -->
-                    <div style="display: flex; gap: 8px; margin-bottom: 20px;">
-                        <button class="tab-btn active" id="lib-tab-images" style="padding: 8px 12px;">Saved Graphics (<span id="count-lib-imgs">0</span>)</button>
-                        <button class="tab-btn" id="lib-tab-texts" style="padding: 8px 12px;">Saved Copy Snippets (<span id="count-lib-texts">0</span>)</button>
-                    </div>
-
-                    <!-- Dynamic Render Containers -->
-                    <div id="lib-images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px;">
-                        <!-- Images inject here -->
-                    </div>
-                    <div id="lib-texts-list" class="hidden" style="display: flex; flex-direction: column; gap: 12px;">
-                        <!-- Text snippets inject here -->
+                    <div class="variant-column" style="flex: 1; display: flex; flex-direction: column; background-color: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; box-sizing: border-box;">
+                        <span class="variant-label-tag" style="background-color: #8b5cf6; align-self: flex-start; color: white; font-size: 0.7rem; font-weight: bold; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px;">Variant B (Instagram)</span>
+                        <p style="font-size: 0.8rem; line-height:1.4; color: #cbd5e1; margin: 0 0 12px 0; min-height: 38px;">${activePost.captionB}</p>
+                        <div class="variant-media-wrapper" style="width:100%; aspect-ratio:1/1; position:relative; overflow:hidden; border-radius:6px; background:#0f172a;">
+                            ${activePost.mediaHTML_B}
+                        </div>
                     </div>
                 </div>
+            `;
 
-            </div>
-        </div>
+            const votingDiv = document.createElement('div');
+            votingDiv.className = "voting-container";
+            votingDiv.style.cssText = "display: flex; gap: 12px; width: 100%; padding: 15px; box-sizing: border-box; border-top: 1px solid #1e293b; justify-content: center;";
+            votingDiv.innerHTML = `
+                <button class="btn-vote" id="vote-a-btn" style="flex: 1; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.2s;">Vote Variant A</button>
+                <button class="btn-vote" id="vote-b-btn" style="flex: 1; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.2s;">Vote Variant B</button>
+            `;
+            arenaMediaFrame.appendChild(votingDiv);
 
-    </div> <!-- Closing app-container -->
+            const voteABtn = arenaMediaFrame.querySelector('#vote-a-btn');
+            const voteBBtn = arenaMediaFrame.querySelector('#vote-b-btn');
 
-    <!-- Link to your external script file -->
-    <script src="script.js"></script>
-</body>
-</html>
+            voteABtn.addEventListener('click', () => {
+                activePost.selectedWinner = 'Variant A';
+                voteABtn.classList.add('selected');
+                voteBBtn.classList.remove('selected');
+            });
+
+            voteBBtn.addEventListener('click', () => {
+                activePost.selectedWinner = 'Variant B';
+                voteBBtn.classList.add('selected');
+                voteABtn.classList.remove('selected');
+            });
+        }
+    } else {
+        if (anonTextDelivery) anonTextDelivery.innerText = activePost.caption;
+        if (anonPlatformBadge) anonPlatformBadge.innerText = activePost.platformBadge;
+        if (anonDisplayHandle) anonDisplayHandle.innerText = activePost.handle;
+
+        if (anonAvatar) {
+            if (activePost.forceCensor) {
+                anonAvatar.innerText = "❌";
+                anonAvatar.classList.add('is-censored');
+            } else {
+                anonAvatar.innerText = "👤";
+                anonAvatar.classList.remove('is-censored');
+            }
+        }
+
+        if (arenaMediaFrame) {
+            arenaMediaFrame.innerHTML = activePost.mediaHTML;
+            const trackElement = arenaMediaFrame.querySelector('.carousel-track');
+            const gridElement = arenaMediaFrame.querySelector('.image-grid');
+
+            if (activePost.platform === 'instagram') {
+                arenaMediaFrame.style.aspectRatio = "1 / 1";
+                if (trackElement) trackElement.style.aspectRatio = "1 / 1";
+            } else if (activePost.platform === 'tiktok') {
+                arenaMediaFrame.style.aspectRatio = "9 / 16";
+                arenaMediaFrame.style.maxWidth = "320px";
+                arenaMediaFrame.style.height = "568px";
+                arenaMediaFrame.style.margin = "0 auto";
+                if (trackElement) trackElement.style.aspectRatio = "9 / 16";
+            } else if (activePost.platform === 'twitter') {
+                arenaMediaFrame.style.aspectRatio = "16 / 9";
+                if (gridElement) gridElement.style.aspectRatio = "16 / 9";
+            }
+        }
+    }
+}
+
+// Wire real-time metric score counters with existence guards
+if (sliderHook && valHook) sliderHook.addEventListener('input', (e) => { valHook.innerText = `${e.target.value}/100`; });
+if (sliderFlow && valFlow) sliderFlow.addEventListener('input', (e) => { valFlow.innerText = `${e.target.value}/100`; });
+if (sliderValue && valValue) sliderValue.addEventListener('input', (e) => { valValue.innerText = `${e.target.value}/100`; });
+
+// Handle submissions and list logging
+if (submitBtn) {
+    submitBtn.addEventListener('click', () => {
+        const activePost = critiqueQueue[currentQueueIndex];
+        if (!activePost) return;
+        
+        if (activePost.isABTest && !activePost.selectedWinner) {
+            alert("⚠️ Please cast your vote on either Variant A or Variant B before submitting your scorecard!");
+            return;
+        }
+
+        const currentCritiqueData = {
+            handle: activePost.isABTest ? "A/B Matchup Post" : activePost.handle,
+            platformBadge: activePost.platformBadge,
+            hookScore: parseInt(sliderHook.value),
+            flowScore: parseInt(sliderFlow.value),
+            valueScore: parseInt(sliderValue.value),
+            notes: reviewerNotes.value.trim() !== "" ? reviewerNotes.value.trim() : "No descriptive critique markers left.",
+            winner: activePost.isABTest ? activePost.selectedWinner : null
+        };
+
+        analyticsDatabase.push(currentCritiqueData);
+
+        const totalCounter = document.getElementById('log-counter-total');
+        const emptyState = document.getElementById('history-empty-state');
+        const logGrid = document.getElementById('analytics-log-grid');
+
+        if (totalCounter) totalCounter.innerText = analyticsDatabase.length;
+        if (emptyState) emptyState.style.display = 'none';
+
+        if (logGrid) {
+            const logCard = document.createElement('div');
+            logCard.className = 'history-log-card';
+            
+            let cardHTML = `
+                <div class="log-meta-line">
+                    <span class="log-handle-tag">${currentCritiqueData.handle}</span>
+                    <span class="log-platform-pill" style="color: #3b82f6;">${currentCritiqueData.platformBadge.replace('Target: ', '')}</span>
+                </div>
+            `;
+
+            if (currentCritiqueData.winner) {
+                cardHTML += `
+                    <div style="background-color: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); padding: 8px; border-radius: 6px; text-align: center; margin-bottom: 8px;">
+                        <span style="font-size: 0.8rem; color: #10b981; font-weight: bold;">👑 Chosen Winner: ${currentCritiqueData.winner}</span>
+                    </div>
+                `;
+            }
+
+            cardHTML += `
+                <div class="log-metric-bars">
+                    <div class="log-bar-row"><span>🪝 Hook Strength:</span><strong>${currentCritiqueData.hookScore}/100</strong></div>
+                    <div class="log-bar-row"><span>👁️ Visual Pacing:</span><strong>${currentCritiqueData.flowScore}/100</strong></div>
+                    <div class="log-bar-row"><span>🔥 Value/Engagement:</span><strong>${currentCritiqueData.valueScore}/100</strong></div>
+                </div>
+                <p class="log-notes-quote">"${currentCritiqueData.notes}"</p>
+            `;
+            
+            logCard.innerHTML = cardHTML;
+            logGrid.insertBefore(logCard, logGrid.firstChild);
+        }
+
+        currentQueueIndex++;
+        
+        if (currentQueueIndex < critiqueQueue.length) {
+            loadActiveQueuePost();
+            if (sliderHook) { sliderHook.value = 50; valHook.innerText = "50/100"; }
+            if (sliderFlow) { sliderFlow.value = 50; valFlow.innerText = "50/100"; }
+            if (sliderValue) { sliderValue.value = 50; valValue.innerText = "50/100"; }
+            if (reviewerNotes) reviewerNotes.value = "";
+        } else {
+            alert("🎉 Feedback session complete! You've audited all active peer drafts in the community queue.");
+            currentQueueIndex = 0;
+            loadActiveQueuePost();
+        }
+    });
+}
+
+// ==========================================
+// 6. VIEW NAVIGATION PORT ROUTERS (FOUR-WAY)
+// ==========================================
+function navigateToScreen(screenId) {
+    if (homeView) homeView.classList.add('hidden');
+    if (sandboxView) sandboxView.classList.add('hidden');
+    if (communityView) communityView.classList.add('hidden');
+    if (libraryView) libraryView.classList.add('hidden');
+
+    if (btnNavHome) btnNavHome.classList.remove('active');
+    if (btnNavSandboxHeader) btnNavSandboxHeader.classList.remove('active');
+    if (btnNavCommunityHeader) btnNavCommunityHeader.classList.remove('active');
+    if (btnNavLibraryHeader) btnNavLibraryHeader.classList.remove('active');
+
+    if (screenId === 'home') {
+        if (homeView) homeView.classList.remove('hidden');
+        if (btnNavHome) btnNavHome.classList.add('active');
+        
+        const totalAuditsNum = document.getElementById('home-stat-audits');
+        if (totalAuditsNum) totalAuditsNum.innerText = analyticsDatabase.length;
+        
+        const abStatBadge = document.getElementById('home-stat-ab');
+        if (abStatBadge) {
+            abStatBadge.innerText = builderMode === 'abtest' ? 'A/B Test Active' : 'Standard Mode';
+            abStatBadge.style.color = builderMode === 'abtest' ? '#8b5cf6' : '#3b82f6';
+        }
+    } else if (screenId === 'sandbox') {
+        if (sandboxView) sandboxView.classList.remove('hidden');
+        if (btnNavSandboxHeader) btnNavSandboxHeader.classList.add('active');
+        renderSandboxQuickDrawer();
+    } else if (screenId === 'community') {
+        saveCurrentEditorToState(); 
+        if (communityView) communityView.classList.remove('hidden');
+        if (btnNavCommunityHeader) btnNavCommunityHeader.classList.add('active');
+        
+        initializeCritiqueQueue();
+        currentQueueIndex = 0;
+        loadActiveQueuePost();
+    } else if (screenId === 'library') {
+        if (libraryView) libraryView.classList.remove('hidden');
+        if (btnNavLibraryHeader) btnNavLibraryHeader.classList.add('active');
+        renderBrandLibraryView(); 
+    }
+}
+
+if (btnNavHome) btnNavHome.addEventListener('click', () => navigateToScreen('home'));
+if (btnNavSandboxHeader) btnNavSandboxHeader.addEventListener('click', () => navigateToScreen('sandbox'));
+if (btnNavCommunityHeader) btnNavCommunityHeader.addEventListener('click', () => navigateToScreen('community'));
+if (btnNavLibraryHeader) btnNavLibraryHeader.addEventListener('click', () => navigateToScreen('library'));
+if (brandHomeLogo) brandHomeLogo.addEventListener('click', () => navigateToScreen('home'));
+
+if (navHomeFromLibBtn) navHomeFromLibBtn.addEventListener('click', () => navigateToScreen('home'));
+if (navSandbox) navSandbox.addEventListener('click', () => navigateToScreen('sandbox'));
+if (navCommunity) navCommunity.addEventListener('click', () => navigateToScreen('community'));
+
+if (launchSandboxBtn) launchSandboxBtn.addEventListener('click', () => navigateToScreen('sandbox'));
+if (launchCommunityBtn) launchCommunityBtn.addEventListener('click', () => navigateToScreen('community'));
+if (launchLibraryBtn) launchLibraryBtn.addEventListener('click', () => navigateToScreen('library'));
+
+// ==========================================
+// 7. LIBRARY CREATION LISTENERS & HANDLERS
+// ==========================================
+if (libraryImageUploader) {
+    libraryImageUploader.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                brandLibrary.images.push(event.target.result);
+                updateBrandLibraryStorage();
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+}
+
+if (saveTextAssetBtn) {
+    saveTextAssetBtn.addEventListener('click', () => {
+        if (!libTextTitle || !libTextBody) return;
+        const title = libTextTitle.value.trim();
+        const body = libTextBody.value.trim();
+
+        if (title === '' || body === '') {
+            alert("⚠️ Please fill out both the Template Label and the text template itself!");
+            return;
+        }
+
+        brandLibrary.texts.push({ title, body });
+        updateBrandLibraryStorage();
+        libTextTitle.value = '';
+        libTextBody.value = '';
+    });
+}
+
+if (libTabImages) {
+    libTabImages.addEventListener('click', () => {
+        libTabImages.classList.add('active');
+        if (libTabTexts) libTabTexts.classList.remove('active');
+        activeLibraryTab = 'images';
+        renderBrandLibraryView();
+    });
+}
+
+if (libTabTexts) {
+    libTabTexts.addEventListener('click', () => {
+        libTabTexts.classList.add('active');
+        if (libTabImages) libTabImages.classList.remove('active');
+        activeLibraryTab = 'texts';
+        renderBrandLibraryView();
+    });
+}
+
+if (toggleSandboxDrawerBtn) {
+    toggleSandboxDrawerBtn.addEventListener('click', () => {
+        if (sandboxQuickDrawer) sandboxQuickDrawer.classList.toggle('hidden');
+    });
+}
+
+// ==========================================
+// INITIAL BOOT SEQUENCE
+// ==========================================
+loadVariantToEditor('A');
+navigateToScreen('home');
