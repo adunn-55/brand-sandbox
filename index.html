@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creator Sandbox & Community Focus Group</title>
+    <title>Creator.io - Workspace Suite</title>
     <!-- Link to your external stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -15,24 +15,25 @@
             <span style="font-size: 1.4rem;">🚀</span>
             <span style="font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; color: #f8fafc;">CREATOR.IO</span>
         </div>
-        <nav class="nav-links" style="display: flex; gap: 20px;">
+        <nav class="nav-links" style="display: flex; gap: 10px;">
             <button class="nav-link-btn active" id="nav-home">Home</button>
             <button class="nav-link-btn" id="nav-sandbox-header">Sandbox</button>
             <button class="nav-link-btn" id="nav-community-header">Focus Group</button>
+            <button class="nav-link-btn" id="nav-library-header">Library</button>
         </nav>
     </header>
 
-    <!-- Main Container Wrapper -->
-    <div class="app-container" style="width: 100%; min-height: calc(100vh - 65px); display: flex; flex-direction: column; align-items: center; box-sizing: border-box; padding-top: 20px;">
+    <!-- Main Container Wrapper to anchor our viewport heights -->
+    <div class="app-container">
 
         <!-- ==========================================
-             NEW: HOME LAUNCHPAD VIEW
+             HOME LAUNCHPAD VIEW
              ========================================== -->
         <div id="home-view" class="app-view">
             <!-- Welcome Hero Section -->
-            <div class="home-hero" style="width: 100%; background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border: 1px solid #1f2937; border-radius: 16px; padding: 40px; box-sizing: border-box; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; overflow: hidden;">
+            <div class="home-hero" style="width: 100%; background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border: 1px solid #1f2937; border-radius: 16px; padding: 40px; box-sizing: border-box; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; overflow: hidden; margin-top: 20px;">
                 <div style="position: relative; z-index: 2; max-width: 600px;">
-                    <span style="background-color: #3b82f6; color: white; font-size: 0.75rem; font-weight: bold; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">Beta Access v1.2</span>
+                    <span style="background-color: #3b82f6; color: white; font-size: 0.75rem; font-weight: bold; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">SaaS Platform v1.5</span>
                     <h1 style="font-size: 2.2rem; margin: 15px 0 10px 0; font-weight: 800; color: #f8fafc;">Optimized Content Awaits.</h1>
                     <p style="color: #94a3b8; font-size: 1.05rem; line-height: 1.5; margin-bottom: 25px;">A unified workspace to draft, edit, split-test, and dynamically review your creative assets before they go live.</p>
                 </div>
@@ -69,12 +70,12 @@
                     <span class="launch-badge" style="color: #10b981;">Launch Arena →</span>
                 </div>
 
-                <!-- Card 3: Library Assets (Locked Placeholder) -->
-                <div class="launch-card locked">
+                <!-- Card 3: Media Library & Templates (Interactive) -->
+                <div class="launch-card interactive" id="launch-library-btn">
                     <div class="card-icon">📁</div>
                     <h4>Media Library & Templates</h4>
                     <p>Store your verified graphics, raw video templates, and approved brand assets for instant sandbox imports.</p>
-                    <span class="lock-badge">🔒 Locked (Coming Soon)</span>
+                    <span class="launch-badge" style="color: #3b82f6;">Manage Assets →</span>
                 </div>
 
                 <!-- Card 4: Historical Analytics (Locked Placeholder) -->
@@ -89,9 +90,9 @@
         </div>
 
         <!-- ==========================================
-             SANDBOX BUILDER VIEW
+             CREATOR SANDBOX VIEW
              ========================================== -->
-        <div id="sandbox-view" class="app-view">
+        <div id="sandbox-view" class="app-view hidden">
             <div class="builder-container">
                 
                 <!-- Left Panel: Content Controls -->
@@ -99,7 +100,7 @@
                     <h2>📱 Creator Sandbox</h2>
                     <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Draft, format, and audit your social copy before pushing to live audiences.</p>
 
-                    <!-- A/B TESTING ENGINE CONTROLS -->
+                    <!-- A/B Testing Switcher -->
                     <div class="draft-mode-container" style="margin-bottom: 25px; background-color: #0f172a; padding: 15px; border-radius: 10px; border: 1px solid #1e293b;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <label style="color: #cbd5e1; font-weight: 600; font-size: 0.9rem;">🛠️ Builder Mode</label>
@@ -109,7 +110,7 @@
                             </div>
                         </div>
 
-                        <!-- Hidden variant sub-tabs -->
+                        <!-- Hidden variant editing tabs -->
                         <div id="ab-variant-tabs" class="hidden" style="margin-top: 10px; border-top: 1px solid #334155; padding-top: 10px;">
                             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                                 <button class="variant-tab active" data-variant="A" style="flex:1; border:none; padding: 10px; border-radius: 6px; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; font-weight: bold; cursor:pointer;">Editing Variant A</button>
@@ -122,19 +123,30 @@
                     <!-- Platform Selector Tabs -->
                     <div class="platform-selector" style="margin-bottom: 20px;">
                         <label style="color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 8px; font-size: 0.9rem;">Target Feed</label>
-                        <div class="tab-btn-group" style="display: flex; gap: 8px;">
+                        <div class="tab-btn-group">
                             <button class="tab-btn active" data-platform="instagram">Instagram</button>
                             <button class="tab-btn" data-platform="twitter">X / Twitter</button>
                             <button class="tab-btn" data-platform="tiktok">TikTok</button>
                         </div>
                     </div>
 
-                    <!-- Copy Inputs -->
+                    <!-- Caption Copy Textarea with Asset Quick Import Drawer -->
                     <div class="input-group" style="margin-bottom: 20px;">
-                        <label for="post-text" style="color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 8px; font-size: 0.9rem;">Caption Copy</label>
-                        <textarea id="post-text" placeholder="Draft your content copy here..." style="width:100%; height:120px; box-sizing:border-box;"></textarea>
-                        <div class="counter-badge" style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-top: 6px;">
-                            <span style="color: #64748b;">Characters: <span id="char-count">0</span> / <span id="char-limit">2200</span></span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <label for="post-text" style="color: #cbd5e1; font-weight: 600; margin: 0; font-size: 0.9rem;">Caption Copy</label>
+                            <button id="toggle-sandbox-drawer-btn" style="background: none; border: none; color: #3b82f6; font-size: 0.8rem; font-weight: bold; cursor: pointer; text-decoration: underline;">⚡ Quick Import Library</button>
+                        </div>
+                        
+                        <!-- Sliding Sandbox Asset Panel (Starts hidden) -->
+                        <div id="sandbox-quick-drawer" class="hidden" style="background-color: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #1e293b; margin-bottom: 12px;">
+                            <span style="font-size: 0.75rem; color: #64748b; font-weight: bold; display: block; margin-bottom: 8px; text-transform: uppercase;">Import Saved Asset:</span>
+                            <div id="sandbox-drawer-images" style="display: flex; gap: 8px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 5px;"></div>
+                            <div id="sandbox-drawer-texts" style="display: flex; flex-direction: column; gap: 6px;"></div>
+                        </div>
+
+                        <textarea id="post-text" placeholder="Draft your content copy here..."></textarea>
+                        <div class="counter-badge">
+                            <span>Characters: <span id="char-count">0</span> / <span id="char-limit">2200</span></span>
                         </div>
                     </div>
 
@@ -147,7 +159,7 @@
                             <span style="font-size: 0.8rem; color: #64748b;">Drag thumbnails to sort sequence.</span>
                         </div>
                         <!-- Drag Sort Sandbox Thumbnail Dock -->
-                        <div id="sort-container" style="display: flex; gap: 10px; margin-top: 15px; min-height: 50px;"></div>
+                        <div id="sort-container"></div>
                     </div>
 
                     <!-- Privacy Configurations -->
@@ -159,7 +171,7 @@
                     </div>
 
                     <!-- Automated Quality Audits -->
-                    <div class="audit-board" style="background-color: #0f172a; padding: 15px; border-radius: 10px; border: 1px solid #1e293b; margin-bottom: 20px;">
+                    <div class="audit-board">
                         <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: #f8fafc;">📋 Pre-Flight Copy Audit</h4>
                         <div id="audit-length" class="audit-item audit-pass">✓ Length complies with Instagram criteria</div>
                         <div id="audit-links" class="audit-item audit-pass">✓ Hashtag optimization looks clean (0/3)</div>
@@ -170,8 +182,8 @@
                     <button id="nav-community" class="btn-action" style="width: 100%; padding: 14px; font-size: 1rem; background-color: #10b981;">Go to Community Focus Group →</button>
                 </div>
 
-                <!-- Right Panel: The Interactive Mock Phone Frame Preview -->
-                <div class="right-panel" style="display: flex; justify-content: center; align-items: center;">
+                <!-- Right Panel: The Sticky Mock Phone Preview Frame -->
+                <div class="right-panel">
                     <div class="mock-phone instagram-mode">
                         <div class="phone-header">
                             <span class="phone-time">9:41</span>
@@ -190,13 +202,13 @@
                                 </div>
 
                                 <!-- Main Screen Media Frame -->
-                                <div class="media-preview-container" style="position: relative;">
+                                <div class="media-preview-container">
                                     <div id="media-preview-wrapper" class="media-preview-wrapper">
                                         <div id="media-placeholder" class="frame-placeholder" style="padding: 60px 20px; text-align: center; color: #475569;">
                                             [ Preview Media Attached Here ]
                                         </div>
                                     </div>
-                                    <!-- Static Carousel Slider Controls -->
+                                    <!-- Carousel Navigation arrows -->
                                     <button id="prev-slide-btn" class="nav-arrow prev-arrow" style="display: none;">‹</button>
                                     <button id="next-slide-btn" class="nav-arrow next-arrow" style="display: none;">›</button>
                                 </div>
@@ -333,7 +345,67 @@
             </div>
         </div>
 
-    </div>
+        <!-- ==========================================
+             MEDIA LIBRARY & ASSET MANAGER VIEW
+             ========================================== -->
+        <div id="library-view" class="app-view hidden">
+            <!-- Header section -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 20px; margin-bottom: 25px; width: 100%; margin-top: 20px;">
+                <div>
+                    <h2 style="margin: 0; color: #f8fafc;">📁 Brand Asset Library</h2>
+                    <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 0.9rem;">Upload and save your standard creative elements for quick imports during testing.</p>
+                </div>
+                <button id="nav-home-from-lib" class="btn-action" style="background-color: #475569;">← Back to Home Dashboard</button>
+            </div>
+
+            <!-- Library Split Workspace -->
+            <div class="builder-container" style="gap: 30px; width: 100%;">
+                
+                <!-- Left Panel: Upload/Manage Inputs -->
+                <div class="left-panel" style="flex: 1; max-height: none; overflow-y: visible;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 1.1rem; color: #cbd5e1;">📥 Add New Asset</h3>
+                    
+                    <!-- Media Asset Upload Form -->
+                    <div class="input-group" style="background-color: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #1e293b; margin-bottom: 20px;">
+                        <label style="color: #f8fafc; font-size: 0.85rem; display:block; margin-bottom: 10px;">Upload Image Asset (.png, .jpg)</label>
+                        <input type="file" id="library-image-uploader" accept="image/*" style="display: none;">
+                        <label class="btn-action" for="library-image-uploader" style="display: block; text-align: center; cursor: pointer; background-color: #1e293b; border: 1px dashed #3b82f6; padding: 15px;">
+                            📷 Click to Upload Graphic
+                        </label>
+                    </div>
+
+                    <!-- Text Template Form -->
+                    <div class="input-group" style="background-color: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #1e293b;">
+                        <label style="color: #f8fafc; font-size: 0.85rem; display:block; margin-bottom: 6px;">Save Copy/CTA Template</label>
+                        <input type="text" id="lib-text-title" placeholder="Template Label (e.g. Bio Link CTA)" style="width:100%; background:#1e293b; border:1px solid #334155; padding:8px; border-radius:6px; color:white; margin-bottom:10px; box-sizing:border-box;">
+                        <textarea id="lib-text-body" placeholder="Paste your recurring caption copy or hashtags here..." style="width:100%; height:80px; background:#1e293b; border:1px solid #334155; padding:8px; border-radius:6px; color:white; resize:none; box-sizing:border-box; font-family:inherit;"></textarea>
+                        <button class="btn-action" id="save-text-asset-btn" style="width: 100%; margin-top: 10px; background-color: #10b981;">💾 Save Text Snippet</button>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Grid Inventory Display -->
+                <div class="critique-scorecard" style="flex: 1.5; background-color: #111827; border: 1px solid #1f2937;">
+                    <h3 style="color: #f8fafc; margin-bottom: 20px;">📦 Saved Repository</h3>
+                    
+                    <!-- Tab Toggle Inside Library -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                        <button class="tab-btn active" id="lib-tab-images" style="padding: 8px 12px;">Saved Graphics (<span id="count-lib-imgs">0</span>)</button>
+                        <button class="tab-btn" id="lib-tab-texts" style="padding: 8px 12px;">Saved Copy Snippets (<span id="count-lib-texts">0</span>)</button>
+                    </div>
+
+                    <!-- Dynamic Render Containers -->
+                    <div id="lib-images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px;">
+                        <!-- Images inject here -->
+                    </div>
+                    <div id="lib-texts-list" class="hidden" style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- Text snippets inject here -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div> <!-- Closing app-container -->
 
     <!-- Link to your external script file -->
     <script src="script.js"></script>
